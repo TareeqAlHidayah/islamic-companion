@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/islamic-companion/static/js/main.d803450f.js",
+    "index.html": "/islamic-companion/index.html",
+    "main.d803450f.js.map": "/islamic-companion/static/js/main.d803450f.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.d803450f.js"
+  ]
+}

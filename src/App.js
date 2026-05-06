@@ -358,7 +358,7 @@ const CSS = `
   .nav-btn.active {
     background: var(--emerald);
     color: white;
-    border-bottom-color: var(--gold);
+    border-bottom: 2px solid var(--emerald);
   }
   .nav-btn:hover { color: var(--emerald); }
   .nav-btn.active {
@@ -2432,9 +2432,8 @@ function TawbahPage() {
     const saved = JSON.parse(localStorage.getItem("tawbah-tracker") || "{}");
     saved[today] = newTracker;
     localStorage.setItem("tawbah-tracker", JSON.stringify(saved));
-    alert(`🤲 You've sought forgiveness ${newCount} times today!\n\n"Indeed, Allah loves those who repent." (2:222)`);
   };
-
+  
   const resetGuide = () => {
     setSelectedSin("");
     setTawbahGuide("");

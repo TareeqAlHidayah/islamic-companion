@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/islamic-companion/static/js/main.04768fc2.js",
+    "main.js": "/islamic-companion/static/js/main.c58969ad.js",
     "index.html": "/islamic-companion/index.html",
-    "main.04768fc2.js.map": "/islamic-companion/static/js/main.04768fc2.js.map"
+    "main.c58969ad.js.map": "/islamic-companion/static/js/main.c58969ad.js.map"
   },
   "entrypoints": [
-    "static/js/main.04768fc2.js"
+    "static/js/main.c58969ad.js"
   ]
 }

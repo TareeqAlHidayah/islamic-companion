@@ -32,11 +32,10 @@ const MINOR_SINS = [
   { id: 1, sin: "Wasting time idly", note: "Tawbah and fill moments with dhikr" },
   { id: 2, sin: "Overeating / food waste", note: "Eat less; be grateful for provision" },
   { id: 3, sin: "Unnecessary music or entertainment", note: "Replace with beneficial content" },
-  { id: 4, sin: "Backbiting (minor remark)", note: "Repent and praise that person instead" },
-  { id: 5, sin: "Missing sunnah prayers", note: "Resume with intention to be consistent" },
-  { id: 6, sin: "Sleeping through Fajr once", note: "Qada the prayer, strengthen your alarm routine" },
-  { id: 7, sin: "Impatient words to others", note: "Seek their forgiveness, then Allah's" },
-  { id: 8, sin: "Looking at something unlawful briefly", note: "Lower the gaze; seek refuge in Allah" },
+  { id: 4, sin: "Missing sunnah prayers", note: "Resume with intention to be consistent" },
+  { id: 5, sin: "Sleeping through Fajr once", note: "Qada the prayer, strengthen your alarm routine" },
+  { id: 6, sin: "Impatient words to others", note: "Seek their forgiveness, then Allah's" },
+  { id: 7, sin: "Looking at something unlawful briefly", note: "Lower the gaze; seek refuge in Allah" },
 ];
 
 const MAJOR_SINS = [
@@ -50,6 +49,10 @@ const MAJOR_SINS = [
   { id: 8, sin: "Eating wealth of orphans", note: "Return what was taken; make amends" },
   { id: 9, sin: "Accusing chaste women falsely", note: "Seek forgiveness of Allah and the person" },
   { id: 10, sin: "Fleeing from battle (abandoning duty)", note: "Recommit to your responsibilities" },
+  { id: 11, sin: "Backbiting (ghibah)", note: "Major sin — repent and praise that person instead" },
+  { id: 12, sin: "Lying deliberately", note: "Major sin — truthfulness leads to Paradise" },
+  { id: 13, sin: "Watching improper videos/images", note: "Major sin — lower your gaze immediately" },
+  { id: 14, sin: "Misbehaving with parents", note: "Major sin — apologize and serve them today" },
 ];
 
 const KIND_WORDS = {
@@ -327,15 +330,15 @@ const CSS = `
     background: var(--parchment);
     border-bottom: 2px solid var(--border);
     display: flex;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding: 0 8px;
-    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px 6px;
+    gap: 6px;
   }
   .nav::-webkit-scrollbar { display: none; }
   .nav-btn {
     flex-shrink: 0;
-    padding: 10px 14px;
+    padding: 8px 14px;
     border: none;
     background: transparent;
     font-family: 'Lora', serif;
@@ -343,9 +346,19 @@ const CSS = `
     font-weight: 600;
     color: var(--ink-muted);
     cursor: pointer;
-    border-bottom: 3px solid transparent;
+    border-bottom: 2px solid transparent;
     transition: all 0.2s;
     white-space: nowrap;
+    border-radius: 8px;
+  }
+  .nav-btn:hover {
+    background: var(--emerald-muted);
+    color: var(--emerald);
+  }
+  .nav-btn.active {
+    background: var(--emerald);
+    color: white;
+    border-bottom-color: var(--gold);
   }
   .nav-btn:hover { color: var(--emerald); }
   .nav-btn.active {

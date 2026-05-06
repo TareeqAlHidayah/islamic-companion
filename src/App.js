@@ -1858,11 +1858,15 @@ function DailyReviewPage() {
 const PAGES = [
   { id: "deeds", label: "✦ Deeds", component: DeedsPage },
   { id: "sins", label: "⚠ Sins", component: SinsPage },
+  { id: "tawbah", label: "🕋 Tawbah", component: TawbahPage },
   { id: "tracker", label: "📅 Tracker", component: DailyTrackerPage },
+  { id: "overview", label: "📊 Overview", component: OverviewPage },
   { id: "library", label: "📖 Library", component: QuranPage },
   { id: "feelings", label: "🌸 Feelings", component: FeelingPage },
   { id: "review", label: "🌙 Review", component: DailyReviewPage },
   { id: "journal", label: "📝 Journal", component: JournalPage },
+  { id: "backup", label: "💾 Backup", component: BackupPage },
+  { id: "disclaimer", label: "📜 Disclaimer", component: DisclaimerPage },
 ];
 
 // ── Daily Tracker Page ─────────────────────────────────────────────────────────
@@ -2633,7 +2637,265 @@ function TawbahPage() {
   );
 }
 
+// ── Backup Page ──────────────────────────────────────────────────────────────
+function BackupPage() {
+  const [status, setStatus] = useState("");
 
+  const createBackup = () => {
+    try {
+      const data = {
+        journal: JSON.parse(localStorage.getItem("islamic-journal") || "[]"),
+        tracker: JSON.parse(localStorage.getItem("islamic-daily-tracker") || "{}"),
+        tawbah: JSON.parse(localStorage.getItem("tawbah-tracker") || "{}"),
+        version: 1,
+        exportedAt: new Date().toISOString(),
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `islamic-companion-backup-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus("✅ Backup downloaded successfully!");
+    } catch (err) {
+      setStatus("❌ Failed: " + err.message);
+    }
+  };
+
+  const restoreBackup = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!window.confirm("⚠️ This will overwrite ALL your current data! Continue?")) {
+      e.target.value = null;
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.journal) localStorage.setItem("islamic-journal", JSON.stringify(data.journal));
+        if (data.tracker) localStorage.setItem("islamic-daily-tracker", JSON.stringify(data.tracker));
+        if (data.tawbah) localStorage.setItem("tawbah-tracker", JSON.stringify(data.tawbah));
+        setStatus("✅ Data restored! Refreshing...");
+        setTimeout(() => window.location.reload(), 2000);
+      } catch (err) {
+        setStatus("❌ Invalid backup file.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = null;
+  };
+
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">💾 Backup & Restore</div>
+        <div className="page-desc">Protect your spiritual journey — download backups regularly!</div>
+      </div>
+      <div className="card" style={{ background: "linear-gradient(135deg, #5c1a1a, #8b2a2a)", color: "white", marginBottom: 20 }}>
+        <div style={{ fontSize: 20, marginBottom: 10 }}>⚠️ IMPORTANT</div>
+        <div style={{ fontSize: 14, lineHeight: 1.8 }}>
+          Your data is stored <strong>only on this device</strong>. Clearing browser history will <strong>permanently delete</strong> all your records.
+          <br/><br/>✅ <strong>Download a backup weekly!</strong>
+        </div>
+      </div>
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--emerald)", marginBottom: 10 }}>📤 Download Backup</div>
+        <p style={{ fontSize: 14, marginBottom: 12 }}>Saves: Journal entries • Daily tracker • Tawbah counter</p>
+        <button className="btn-primary" onClick={createBackup} style={{ width: "100%" }}>📥 Download Backup File</button>
+      </div>
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--emerald)", marginBottom: 10 }}>📥 Restore from Backup</div>
+        <p style={{ fontSize: 14, marginBottom: 12 }}>Select a backup file to restore all your data.</p>
+        <input type="file" accept=".json" onChange={restoreBackup} style={{ width: "100%", padding: "12px", border: "2px dashed var(--gold)", borderRadius: 10, fontFamily: "Lora, serif", cursor: "pointer", marginBottom: 10 }} />
+        <div style={{ fontSize: 12, color: "var(--red-sin)", fontWeight: 600 }}>⚠️ This will replace all current data.</div>
+      </div>
+      {status && (
+        <div className="card" style={{ marginTop: 16, background: status.startsWith("✅") ? "var(--emerald-muted)" : "var(--red-pale)" }}>{status}</div>
+      )}
+    </div>
+  );
+}
+
+// ── Disclaimer Page (Enhanced) ───────────────────────────────────────────────
+function DisclaimerPage() {
+  const [copied, setCopied] = useState(false);
+  const copyEmail = () => { navigator.clipboard.writeText("faith.ink.nur@gmail.com"); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">📜 Disclaimer & Reflection</div>
+        <div className="page-desc">Important information about this spiritual companion</div>
+      </div>
+
+      {/* Bismillah Card */}
+      <div className="card" style={{ background: "linear-gradient(135deg, var(--emerald), #0f3d27)", color: "white", textAlign: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>🕋</div>
+        <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Bismillahir Rahmanir Rahim</div>
+        <div style={{ fontSize: 14, opacity: 0.9, fontStyle: "italic", lineHeight: 1.8 }}>
+          "And whoever does an atom's weight of good will see it, and whoever does an atom's weight of evil will see it."<br/>
+          (Surah Az-Zalzalah 99:7-8)
+        </div>
+      </div>
+
+      {/* Message from the Creator */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--emerald)", marginBottom: 12 }}>
+          🌟 A Message from a Lost Wanderer
+        </div>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 14 }}>
+          Alhamdulillah, Astaghfirullah. All praise belongs to Allah, the Creator of all, and to Him we shall return.
+          I am but a lost wanderer on this path of life, no different from you — a servant seeking His mercy, a soul yearning for His forgiveness.
+          This app was born from my own struggle to keep account of my deeds before the ultimate accounting.
+          I am not a scholar, nor a saint. Just a fellow traveler who stumbled trying to find the straight path.
+        </p>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", fontStyle: "italic" }}>
+          "Our Lord, we have believed, so forgive us and have mercy upon us, and You are the best of the merciful." (23:109)
+        </p>
+      </div>
+
+      {/* Words of Hope & Encouragement */}
+      <div className="card" style={{ background: "linear-gradient(135deg, var(--gold-pale), var(--emerald-muted))", marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--emerald)", marginBottom: 12 }}>
+          🌈 Never Lose Hope in Allah
+        </div>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 12 }}>
+          If you have lost your data, missed your prayers, or are passing through the hardest time of your life — know this:
+        </p>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)", textAlign: "center", marginBottom: 14, fontStyle: "italic" }}>
+          "Say: O My servants who have transgressed against themselves,<br/>do not despair of the mercy of Allah.<br/>Indeed, Allah forgives all sins."<br/>
+          <span style={{ fontSize: 13 }}>(Surah Az-Zumar 39:53)</span>
+        </div>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 10 }}>
+          📿 <strong>If you forgot to pray</strong> — make wudu now and pray. The door is always open. Allah does not turn away a servant who returns to Him.
+        </p>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 10 }}>
+          🤲 <strong>If you feel lost or broken</strong> — cry to Allah. He is Al-Sami (The All-Hearing), Al-Qarib (The Near One). Not a single tear falls without His knowledge.
+        </p>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 10 }}>
+          🕋 <strong>If you have sinned again and again</strong> — make sincere Tawbah right now. Allah loves those who repent. The Prophet ﷺ said: "The one who repents from sin is like the one who never sinned."
+        </p>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 10 }}>
+          🌸 <strong>Spread kindness for the sake of Allah</strong> — a smile, a kind word, helping someone in need. Every small act of goodness plants a seed in your scales.
+        </p>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 10 }}>
+          📖 <strong>Hold onto your prayers</strong> — even if everything else falls apart, your salah is your lifeline. The Prophet ﷺ said: "The comfort of my eyes is in prayer."
+        </p>
+        <div style={{ textAlign: "center", marginTop: 14, fontSize: 13, fontStyle: "italic", color: "var(--emerald)" }}>
+          "And whoever fears Allah — He will make for him a way out, and will provide for him from where he does not expect." (65:2-3)
+        </div>
+      </div>
+
+      {/* Data Warning */}
+      <div className="card" style={{ background: "linear-gradient(135deg, #5c1a1a, #8b2a2a)", color: "white", marginBottom: 16 }}>
+        <div style={{ fontSize: 20, marginBottom: 12 }}>⚠️ IMPORTANT — About Your Data</div>
+        <div style={{ fontSize: 14, lineHeight: 1.9 }}>
+          <p style={{ marginBottom: 10 }}>
+            Your data is stored <strong>locally on your device only</strong> — not on any external server.
+            Even this lost wanderer cannot see your records. Your privacy is sacred.
+          </p>
+          <p style={{ marginBottom: 10 }}>
+            <strong>⚠️ Your data WILL BE PERMANENTLY LOST if you:</strong>
+          </p>
+          <ul style={{ marginLeft: 20, marginBottom: 14, lineHeight: 2 }}>
+            <li>Clear your browser history or cache</li>
+            <li>Uninstall or reset your browser</li>
+            <li>Switch to a new device or phone</li>
+            <li>Use incognito/private mode (data is not saved)</li>
+            <li>Delete browsing data from your browser settings</li>
+          </ul>
+          <div style={{ background: "rgba(255,255,255,0.15)", padding: "14px 16px", borderRadius: 10, textAlign: "center", fontWeight: 700, fontSize: 15, marginBottom: 10 }}>
+            💾 Go to the <strong>Backup</strong> tab and download a backup right now!<br/>
+            <span style={{ fontSize: 12, fontWeight: 400 }}>Save it to Google Drive, email it to yourself, or keep it in a safe folder.</span>
+          </div>
+          <p style={{ fontSize: 13, fontStyle: "italic", textAlign: "center" }}>
+            Make it a habit — download a backup every Friday after Jumu'ah.
+          </p>
+        </div>
+      </div>
+
+      {/* Contact & Bug Reports */}
+      <div className="card" style={{ background: "var(--gold-pale)", border: "1px solid var(--gold)", marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--emerald)", marginBottom: 12 }}>
+          📧 Suggestions, Bug Reports & Contact
+        </div>
+        <p style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 12 }}>
+          If you find a bug, have a suggestion for improvement, want to report an issue, or simply want to share a prayer for this lost wanderer — your words reach my heart. I built this alone, and your feedback helps make it better for everyone.
+        </p>
+        <ul style={{ marginLeft: 20, fontSize: 13, lineHeight: 1.9, color: "var(--ink)", marginBottom: 14 }}>
+          <li>🐛 Found a bug? Let me know what happened</li>
+          <li>💡 Have an idea for a new feature?</li>
+          <li>📖 Found incorrect Islamic content? Please report it</li>
+          <li>🤲 Just want to share a dua or kind words</li>
+        </ul>
+        <div style={{ background: "white", padding: "14px 16px", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 12 }}>
+          <div style={{ fontFamily: "monospace", fontSize: 14, color: "var(--ink)", wordBreak: "break-all" }}>
+            📧 faith.ink.nur@gmail.com
+          </div>
+          <button onClick={copyEmail} className="btn-primary" style={{ padding: "10px 18px", fontSize: 13, background: "var(--gold)", color: "white", border: "none", borderRadius: 99, cursor: "pointer", fontWeight: 600 }}>
+            {copied ? "✓ Copied!" : "📋 Copy Email"}
+          </button>
+        </div>
+        <p style={{ fontSize: 12, color: "var(--ink-muted)", fontStyle: "italic", textAlign: "center" }}>
+          "And say, 'My Lord, increase me in knowledge.'" (20:114)
+        </p>
+      </div>
+
+      {/* Terms of Use */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--emerald)", marginBottom: 12 }}>
+          📜 Terms of Use
+        </div>
+        <ul style={{ marginLeft: 20, fontSize: 13, lineHeight: 2, color: "var(--ink-muted)" }}>
+          <li>This app is for personal spiritual development only</li>
+          <li>Not a substitute for professional religious advice from qualified scholars</li>
+          <li>Always consult local imams or scholars for religious rulings (fiqh)</li>
+          <li>This lost wanderer is not responsible for any misuse of the app</li>
+          <li>All data remains on your device — no cloud storage or tracking</li>
+          <li>AI features (if enabled) provide general guidance, not authoritative fatwas</li>
+        </ul>
+      </div>
+
+      {/* Prayer for the Creator */}
+      <div className="card" style={{ background: "var(--emerald-muted)", textAlign: "center", marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--emerald)", marginBottom: 14 }}>
+          🤲 A Prayer for This Lost Wanderer
+        </div>
+        <div style={{ fontFamily: "'Amiri', serif", fontSize: 20, marginBottom: 14, direction: "rtl", lineHeight: 2 }}>
+          اللهم اغفر له وارحمه واهدِه إلى صراطك المستقيم
+        </div>
+        <div style={{ fontSize: 14, fontStyle: "italic", color: "var(--ink-muted)", marginBottom: 12 }}>
+          "O Allah, forgive him, have mercy on him, and guide him to Your straight path."
+        </div>
+        <p style={{ fontSize: 13, color: "var(--ink-light)", lineHeight: 1.8 }}>
+          And for you, dear reader — may Allah grant you steadfastness in faith, accept every tear of repentance, 
+          fill your heart with His light, and gather us all among His beloved servants on the Day when neither wealth 
+          nor children will benefit — only a sound heart coming to Allah.
+        </p>
+      </div>
+
+      {/* Final Reminder */}
+      <div className="card" style={{ textAlign: "center", marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--emerald)", marginBottom: 8 }}>
+          💡 Final Reminder
+        </div>
+        <div style={{ fontSize: 13, color: "var(--ink-muted)", lineHeight: 1.8 }}>
+          Go to the <strong>💾 Backup</strong> tab to download your data now.<br/>
+          Go to the <strong>🕋 Tawbah</strong> tab whenever you need to return to Allah.<br/>
+          Your spiritual journey matters — protect it.
+        </div>
+      </div>
+
+      <div className="ornament" style={{ marginTop: 16 }}>❧ ✦ ❧</div>
+      <div style={{ textAlign: "center", fontSize: 13, color: "var(--ink-light)", fontStyle: "italic", lineHeight: 1.8, marginBottom: 20 }}>
+        JazakAllah Khair for walking this path with me.<br/>
+        May Allah accept every step, every tear, and every effort from all of us.
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [page, setPage] = useState("deeds");

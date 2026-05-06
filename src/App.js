@@ -356,14 +356,12 @@ const CSS = `
     color: var(--emerald);
   }
   .nav-btn.active {
-    background: var(--emerald);
-    color: white;
-    border-bottom: 2px solid var(--emerald);
+    background: transparent;
+    color: var(--emerald);
+    border-bottom: 3px solid var(--emerald);
   }
   .nav-btn:hover { color: var(--emerald); }
-  .nav-btn.active {
-    color: var(--emerald);
-    border-bottom-color: var(--gold);
+
   }
 
   /* ── Main Content ── */
@@ -2433,7 +2431,7 @@ function TawbahPage() {
     saved[today] = newTracker;
     localStorage.setItem("tawbah-tracker", JSON.stringify(saved));
   };
-  
+
   const resetGuide = () => {
     setSelectedSin("");
     setTawbahGuide("");

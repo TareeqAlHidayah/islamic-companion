@@ -2321,6 +2321,7 @@ function OverviewPage() {
 
 // ── Tawbah Page (Comprehensive Repentance Guide) ─────────────────────────────
 
+// ── Tawbah Page (Enhanced with Qur'an & Hadith) ──────────────────────────────
 function TawbahPage() {
   const [selectedSin, setSelectedSin] = useState("");
   const [tawbahGuide, setTawbahGuide] = useState("");
@@ -2363,44 +2364,44 @@ function TawbahPage() {
 
   const getTawbahGuide = (sin) => {
     const guides = {
-      "Missing prayers": "📿 **Immediate Actions:**\n• Make up the missed prayer (Qada) as soon as you remember\n• Set multiple alarms for each prayer time\n• Find a prayer buddy to check on each other\n\n**Hadith:** 'The covenant between us and them is prayer; whoever abandons it has committed disbelief.' (Tirmidhi)\n\n**Action Plan:** Start with just one prayer (Maghrib/Isha) and gradually add more. Allah loves consistent deeds, even if small.",
+      "Missing prayers": "📿 **Immediate Actions:**\n• Make up the missed prayer (Qada) as soon as you remember\n• Set multiple alarms for each prayer time\n• Find a prayer buddy to check on each other\n\n**Hadith:** The Prophet ﷺ said: 'The covenant between us and them is prayer; whoever abandons it has committed disbelief.' (Tirmidhi)\n\n**Quran:** 'Then there succeeded them a generation who neglected prayer and followed their desires, so they will meet destruction — except those who repent, believe, and do righteousness.' (Maryam 19:59-60)\n\n**Action Plan:** Start with just one prayer (Maghrib/Isha) and gradually add more. Allah loves consistent deeds, even if small.\n\n**Hope:** The Prophet ﷺ said: 'The first thing the servant will be held accountable for on the Day of Judgment is the prayer. If it is sound, the rest of his deeds will be sound.'",
       
-      "Backbiting": "🗣️ **Immediate Actions:**\n• Seek forgiveness from the person you spoke about\n• Speak well of them in gatherings where you backbit\n• Make dua for their well-being\n\n**Quran:** 'And do not backbite one another. Would one of you like to eat the flesh of his dead brother?' (49:12)\n\n**Action Plan:** Before speaking about someone, ask: 'Would I say this in front of them?' If not, don't say it.",
+      "Backbiting": "🗣️ **Immediate Actions:**\n• Seek forgiveness from the person you spoke about\n• Speak well of them in gatherings where you backbit\n• Make dua for their well-being\n\n**Quran:** 'O you who believe, avoid much suspicion. Indeed, some suspicion is sin. And do not spy on one another or backbite one another. Would one of you like to eat the flesh of his dead brother? You would detest it.' (Al-Hujurat 49:12)\n\n**Hadith:** The Prophet ﷺ said: 'Do you know what backbiting is?' They said: 'Allah and His Messenger know best.' He said: 'Mentioning your brother with something he dislikes.' (Muslim)\n\n**Action Plan:** Before speaking about someone, ask: 'Would I say this if they were standing right here?'",
       
-      "Lying": "🤥 **Immediate Actions:**\n• Correct the lie immediately if possible\n• Commit to truthfulness even when difficult\n• Apologize to anyone affected\n\n**Hadith:** The Prophet ﷺ said: 'Truthfulness leads to righteousness, and righteousness leads to Paradise. A man continues to tell the truth until he is recorded with Allah as a truthful person.' (Bukhari)\n\n**Action Plan:** Start with one day without any lies — even small 'white lies'.",
+      "Lying": "🤥 **Immediate Actions:**\n• Correct the lie immediately if possible\n• Commit to truthfulness even when difficult\n• Apologize to anyone affected\n\n**Quran:** 'O you who believe, fear Allah and be with the truthful.' (At-Tawbah 9:119)\n\n**Hadith:** The Prophet ﷺ said: 'Truthfulness leads to righteousness, and righteousness leads to Paradise. A man continues to tell the truth until he is recorded with Allah as a truthful person. Falsehood leads to wickedness, and wickedness leads to the Fire.' (Bukhari & Muslim)\n\n**Action Plan:** Start with one day without any lies — even 'white lies'. Keep a truthfulness journal.",
       
-      "Wasting time": "⏰ **Immediate Actions:**\n• Make a schedule for your day\n• Set 10-minute daily Quran goal\n• Remove time-wasting apps\n\n**Quran:** 'By time, indeed mankind is in loss, except those who believe and do righteous deeds.' (103:1-3)\n\n**Action Plan:** Use the '5 minutes rule' — just 5 minutes of productivity often turns into more.",
+      "Wasting time": "⏰ **Immediate Actions:**\n• Make a schedule for your day\n• Set 10-minute daily Quran goal\n• Remove time-wasting apps\n\n**Quran:** 'By time, indeed mankind is in loss, except those who believe and do righteous deeds, and enjoin one another to truth, and enjoin one another to patience.' (Al-Asr 103:1-3)\n\n**Hadith:** The Prophet ﷺ said: 'Take advantage of five before five: your youth before your old age, your health before your illness, your wealth before your poverty, your free time before your work, and your life before your death.' (Hakim)\n\n**Action Plan:** Use the '5 minutes rule' — just 5 minutes of productivity often turns into more.",
       
-      "Music & entertainment": "🎵 **Immediate Actions:**\n• Replace with Quran recitation or nasheeds\n• Unfollow music accounts on social media\n• Make dhikr 'SubhanAllah, Alhamdulillah, Allahu Akbar' when urge strikes\n\n**Quran:** 'And of the people is he who buys the amusement of speech to mislead from the way of Allah.' (31:6)\n\n**Action Plan:** Gradual replacement — reduce by 10 minutes daily, replace with beneficial content.",
+      "Music & entertainment": "🎵 **Immediate Actions:**\n• Replace with Quran recitation or nasheeds\n• Unfollow music accounts on social media\n• Make dhikr 'SubhanAllah, Alhamdulillah, Allahu Akbar' when urge strikes\n\n**Quran:** 'And of the people is he who buys the amusement of speech to mislead others from the way of Allah without knowledge, and takes it in ridicule. Those will have a humiliating punishment.' (Luqman 31:6)\n\n**Action Plan:** Gradual replacement — reduce by 10 minutes daily, replace with beneficial Islamic content.",
       
-      "Looking at haram": "👁️ **Immediate Actions:**\n• Lower your gaze immediately and say 'A'udhu billah'\n• Unfollow/block accounts that trigger this\n• Fill your feed with Islamic content\n\n**Hadith:** The Prophet ﷺ said: 'The eyes commit zina and their zina is looking.' (Bukhari)\n\n**Action Plan:** Practice 'second glance rule' — never look twice. The first may be accidental, the second is intentional.",
+      "Looking at haram": "👁️ **Immediate Actions:**\n• Lower your gaze immediately and say 'A'udhu billah'\n• Unfollow/block accounts that trigger this\n• Fill your feed with Islamic content\n\n**Quran:** 'Tell the believing men to lower their gaze and guard their private parts. That is purer for them. Indeed, Allah is Acquainted with what they do.' (An-Nur 24:30)\n\n**Hadith:** The Prophet ﷺ said: 'The eyes commit zina and their zina is looking.' (Bukhari)\n\n**Action Plan:** Practice 'second glance rule' — never look twice. The first may be accidental, the second is intentional.",
       
-      "Disobeying parents": "👪 **Immediate Actions:**\n• Apologize to them today\n• Serve them — make tea, help with chores, sit with them\n• Make abundant dua for their health and happiness\n\n**Hadith:** 'The pleasure of Allah is in the pleasure of parents, and the displeasure of Allah is in the displeasure of parents.' (Tirmidhi)\n\n**Action Plan:** Call or visit them daily, even just to say 'I love you'.",
+      "Disobeying parents": "👪 **Immediate Actions:**\n• Apologize to them today — right now\n• Serve them — make tea, help with chores, sit with them\n• Make abundant dua for their health and happiness\n\n**Quran:** 'And your Lord has decreed that you worship none but Him, and be dutiful to parents. Whether one or both of them attain old age in your life, say not to them a word of disrespect, nor shout at them, but address them in terms of honor.' (Al-Isra 17:23)\n\n**Hadith:** 'The pleasure of Allah is in the pleasure of parents, and the displeasure of Allah is in the displeasure of parents.' (Tirmidhi)\n\n**Action Plan:** Call or visit them daily, even just to say 'I love you'. Serve them with your own hands.",
       
-      "Wasting food/water": "💧 **Immediate Actions:**\n• Take only what you will eat\n• Share leftovers with others\n• Say 'Bismillah' before eating and 'Alhamdulillah' after\n\n**Hadith:** The Prophet ﷺ forbade wasting water even when performing wudu at a flowing river. (Ibn Majah)\n\n**Action Plan:** Finish everything on your plate. Compost food scraps instead of trashing them.",
+      "Wasting food/water": "💧 **Immediate Actions:**\n• Take only what you will eat\n• Share leftovers with others\n• Say 'Bismillah' before eating and 'Alhamdulillah' after\n\n**Quran:** 'O children of Adam, take your adornment at every masjid, and eat and drink, but be not excessive. Indeed, He likes not those who commit excess.' (Al-A'raf 7:31)\n\n**Hadith:** The Prophet ﷺ passed by Sa'd while he was performing wudu and said: 'What is this wastage?' Sa'd replied: 'Is there wastage even in wudu?' The Prophet ﷺ said: 'Yes, even if you are at a flowing river.' (Ibn Majah)\n\n**Action Plan:** Finish everything on your plate. Compost food scraps instead of trashing them.",
       
-      "Being ungrateful": "🙏 **Immediate Actions:**\n• Start a daily gratitude journal (write 3 blessings each night)\n• Say 'Alhamdulillah' at least 100 times daily\n• Thank people genuinely\n\n**Quran:** 'If you are grateful, I will surely increase you.' (14:7)\n\n**Action Plan:** Before sleeping, reflect on 3 things you're grateful for — even small things like clean water, a roof, or a kind word.",
+      "Being ungrateful": "🙏 **Immediate Actions:**\n• Start a daily gratitude journal (write 3 blessings each night)\n• Say 'Alhamdulillah' at least 100 times daily\n• Thank people genuinely — the Prophet ﷺ said: 'Whoever does not thank people has not thanked Allah.'\n\n**Quran:** 'And remember when your Lord proclaimed: If you are grateful, I will surely increase you. But if you deny, indeed My punishment is severe.' (Ibrahim 14:7)\n\n**Action Plan:** Before sleeping, reflect on 3 things you're grateful for.",
       
-      "Arrogance / Pride": "🦚 **Immediate Actions:**\n• Remind yourself that you came from dust and will return to dust\n• Perform acts of service humbly\n• Seek forgiveness from anyone you looked down upon\n\n**Hadith:** 'No one who has an atom's weight of arrogance in his heart will enter Paradise.' (Muslim)\n\n**Action Plan:** Sit with people less fortunate and serve them — this humbles the heart.",
+      "Arrogance / Pride": "🦚 **Immediate Actions:**\n• Remind yourself that you came from dust and will return to dust\n• Perform acts of service humbly\n• Seek forgiveness from anyone you looked down upon\n\n**Quran:** 'And do not walk upon the earth exultantly. Indeed, you will never tear the earth apart, and you will never reach the mountains in height.' (Al-Isra 17:37)\n\n**Hadith:** The Prophet ﷺ said: 'No one who has an atom's weight of arrogance in his heart will enter Paradise.' A man asked: 'What if a man likes his clothes and shoes to look good?' The Prophet ﷺ said: 'Allah is beautiful and loves beauty. Arrogance is rejecting the truth and looking down on people.' (Muslim)\n\n**Action Plan:** Sit with people less fortunate and serve them — this humbles the heart.",
       
-      "Envy / Jealousy": "💚 **Immediate Actions:**\n• Say 'MashaAllah, la quwwata illa billah'\n• Make dua for the person you envy — pray for their increase\n• Count your own blessings\n\n**Quran:** 'Do not envy one another.' (49:10)\n\n**Action Plan:** When you feel envy, immediately make dua: 'Allahumma barik lahu' (O Allah, bless him/him).",
+      "Envy / Jealousy": "💚 **Immediate Actions:**\n• Say 'MashaAllah, la quwwata illa billah'\n• Make dua for the person you envy — pray for their increase\n• Count your own blessings\n\n**Quran:** 'Or do they envy people for what Allah has given them of His bounty?' (An-Nisa 4:54)\n\n**Hadith:** The Prophet ﷺ said: 'Beware of envy, for envy consumes good deeds as fire consumes wood.' (Abu Dawud)\n\n**Action Plan:** When you feel envy, immediately make dua: 'Allahumma barik lahu' (O Allah, bless him).",
       
-      "Not lowering gaze": "👀 **Immediate Actions:**\n• Look away immediately\n• Remember Allah is watching\n• Practice mindfulness in public spaces\n\n**Quran:** 'Tell the believing men to lower their gaze and guard their chastity. That is purer for them.' (24:30)\n\n**Action Plan:** Keep your eyes focused on the ground when walking. Occupy your eyes with phone/book.",
+      "Not lowering gaze": "👀 **Immediate Actions:**\n• Look away immediately\n• Remember Allah is watching\n• Practice mindfulness in public spaces\n\n**Quran:** 'Tell the believing men to lower their gaze and guard their chastity. That is purer for them. Indeed, Allah is Acquainted with what they do.' (An-Nur 24:30)\n\n**Hadith:** The Prophet ﷺ said to Ali (RA): 'O Ali, do not follow a glance with another glance, for the first is for you (accidental) but the second is against you.' (Tirmidhi)\n\n**Action Plan:** Keep your eyes focused on the ground when walking in crowded areas.",
       
-      "Breaking family ties": "💔 **Immediate Actions:**\n• Reach out today — call, text, or visit\n• Be the first to initiate reconciliation\n• Make dua for family unity\n\n**Hadith:** 'The one who severs family ties will not enter Paradise.' (Bukhari)\n\n**Action Plan:** Start with one relative you haven't contacted in a while. Send a simple greeting.",
+      "Breaking family ties": "💔 **Immediate Actions:**\n• Reach out today — call, text, or visit\n• Be the first to initiate reconciliation\n• Make dua for family unity\n\n**Quran:** 'So would you perhaps, if you turned away, cause corruption on earth and sever your family ties? Those whom Allah has cursed, so He made them deaf and blinded their vision.' (Muhammad 47:22-23)\n\n**Hadith:** The Prophet ﷺ said: 'The one who severs family ties will not enter Paradise.' (Bukhari & Muslim)\n\n**Action Plan:** Start with one relative you haven't contacted in a while. Send a simple greeting of salam.",
       
-      "Consuming haram income": "💰 **Immediate Actions:**\n• Stop the haram source immediately\n• Seek halal alternatives\n• Give charity from haram money (if possible)\n\n**Quran:** 'Eat of what is lawful and pure on earth.' (2:168)\n\n**Action Plan:** Research halal income options. Even less money from halal sources brings barakah.",
+      "Consuming haram income": "💰 **Immediate Actions:**\n• Stop the haram source immediately\n• Seek halal alternatives\n• Give charity from haram money (to purify yourself, not for reward)\n\n**Quran:** 'O you who believe, eat from the good things which We have provided for you and be grateful to Allah if it is Him you worship.' (Al-Baqarah 2:172)\n\n**Hadith:** The Prophet ﷺ said: 'A body nourished with haram will not enter Paradise.' (Ahmad)\n\n**Action Plan:** Research halal income options. Even less money from halal sources brings barakah.",
       
-      "Missing Jumu'ah": "🕌 **Immediate Actions:**\n• Set reminder for Friday before noon\n• Prepare for Jumu'ah the night before\n• Ask your employer for prayer accommodation\n\n**Hadith:** 'Whoever misses three Jumu'ahs out of negligence, Allah seals his heart.' (Abu Dawud)\n\n**Action Plan:** Make Jumu'ah your weekly appointment with Allah — nothing is more important.",
+      "Missing Jumu'ah": "🕌 **Immediate Actions:**\n• Set reminder for Friday before noon\n• Prepare for Jumu'ah the night before\n• Ask your employer for prayer accommodation\n\n**Quran:** 'O you who believe, when the call is made for prayer on Friday, hasten to the remembrance of Allah and leave off trade.' (Al-Jumu'ah 62:9)\n\n**Hadith:** The Prophet ﷺ said: 'Whoever misses three Jumu'ahs out of negligence, Allah seals his heart.' (Abu Dawud)\n\n**Action Plan:** Make Jumu'ah your weekly appointment with Allah — nothing is more important.",
       
-      "Not giving Zakat": "💸 **Immediate Actions:**\n• Calculate what you owe\n• Pay immediately to verified charities\n• Make intention to never delay again\n\n**Quran:** 'And establish prayer and give Zakat.' (2:43)\n\n**Action Plan:** Calculate Zakat yearly in Ramadan. Set reminder on your phone.",
+      "Not giving Zakat": "💸 **Immediate Actions:**\n• Calculate what you owe\n• Pay immediately to verified charities\n• Make intention to never delay again\n\n**Quran:** 'And establish prayer and give Zakat, and bow with those who bow.' (Al-Baqarah 2:43)\n\n**Quran:** 'And those who hoard gold and silver and spend it not in the way of Allah — give them tidings of a painful punishment.' (At-Tawbah 9:34)\n\n**Action Plan:** Calculate Zakat yearly in Ramadan. Set a reminder on your phone.",
       
-      "Breaking promises": "📜 **Immediate Actions:**\n• Fulfill the promise if still possible\n• Sincerely apologize if you cannot\n• Avoid making promises you may not keep\n\n**Quran:** 'And fulfill every promise. Indeed, the promise will be asked about.' (17:34)\n\n**Action Plan:** Say 'InshaAllah' when making future promises. Keep a promises journal."
+      "Breaking promises": "📜 **Immediate Actions:**\n• Fulfill the promise if still possible\n• Sincerely apologize if you cannot\n• Avoid making promises you may not keep — say 'InshaAllah'\n\n**Quran:** 'And fulfill every promise. Indeed, the promise will be asked about.' (Al-Isra 17:34)\n\n**Quran:** 'O you who believe, fulfill your contracts.' (Al-Ma'idah 5:1)\n\n**Action Plan:** Say 'InshaAllah' when making future promises. Keep a small promises journal."
     };
     
     if (guides[sin]) return guides[sin];
     
-    return "🌙 **General Tawbah Guide:**\n\n1. **Stop the sin immediately** — Right now, in this moment, cease the action.\n2. **Feel sincere regret** — Let your heart feel sorrow for disobeying Allah.\n3. **Resolve never to return** — Make a firm commitment in your heart.\n4. **Make wudu and pray 2 rak'ahs** — The 'Prayer of Repentance' (Salat al-Tawbah).\n5. **Cry to Allah** — Pour your heart out in dua. He loves when His servant calls upon Him.\n\n**Quran:** 'Say: O My servants who have transgressed against themselves, do not despair of Allah's mercy. Indeed, Allah forgives all sins.' (39:53)";
+    return `🌙 **General Tawbah Guide for "${sin}":**\n\n1. **Stop the sin immediately** — Right now, in this moment, cease the action.\n2. **Feel sincere regret** — Let your heart feel sorrow for disobeying Allah.\n3. **Resolve never to return** — Make a firm commitment in your heart.\n4. **Make wudu and pray 2 rak'ahs** — The 'Prayer of Repentance' (Salat al-Tawbah).\n5. **Cry to Allah** — Pour your heart out in dua. He loves when His servant calls upon Him.\n\n**Quran:** 'Say: O My servants who have transgressed against themselves, do not despair of the mercy of Allah. Indeed, Allah forgives all sins.'' (Az-Zumar 39:53)\n\n**Hadith:** The Prophet ﷺ said: 'Allah extends His Hand at night to accept the repentance of the one who sinned during the day, and He extends His Hand during the day to accept the repentance of the one who sinned at night — until the sun rises from the west.' (Muslim)`;
   };
 
   const handleSinSelect = (sin) => {
@@ -2415,11 +2416,9 @@ function TawbahPage() {
     const newCount = dailyTawbah.count + 1;
     const newTracker = { count: newCount, timestamp: new Date().toISOString() };
     setDailyTawbah(newTracker);
-    
     const saved = JSON.parse(localStorage.getItem("tawbah-tracker") || "{}");
     saved[today] = newTracker;
     localStorage.setItem("tawbah-tracker", JSON.stringify(saved));
-    
     alert(`🤲 You've sought forgiveness ${newCount} times today!\n\n"Indeed, Allah loves those who repent." (2:222)`);
   };
 
@@ -2429,13 +2428,11 @@ function TawbahPage() {
     setShowGuide(false);
   };
 
-  const todayStr = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long" });
-
   return (
     <div>
       <div className="page-header">
-        <div className="page-title">🤲 Tawbah — Repentance</div>
-        <div className="page-desc">"Indeed, Allah loves those who repent and those who purify themselves." (2:222)</div>
+        <div className="page-title">🤲 Tawbah — Return to Your Lord</div>
+        <div className="page-desc">"Indeed, Allah loves those who constantly repent and those who purify themselves." (Al-Baqarah 2:222)</div>
       </div>
 
       {/* Daily Tawbah Tracker */}
@@ -2449,39 +2446,212 @@ function TawbahPage() {
         </button>
       </div>
 
-      {/* Main Message */}
+      {/* Main Message Card */}
       <div className="card" style={{ background: "linear-gradient(135deg, var(--emerald), #0f3d27)", color: "white", textAlign: "center", marginBottom: 20 }}>
         <div style={{ fontSize: 48, marginBottom: 8 }}>🕋</div>
-        <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>The Door of Repentance is Always Open</div>
-        <div style={{ fontSize: 13, opacity: 0.9, lineHeight: 1.6 }}>
-          No matter how many times you fall, Allah's mercy is greater.<br/>
-          The Prophet ﷺ said: "The one who repents from sin is like the one who never sinned."
+        <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>The Door of Repentance is Always Open</div>
+        <div style={{ fontSize: 14, opacity: 0.9, lineHeight: 1.8, marginBottom: 12 }}>
+          No matter how many times you fall, no matter how far you've strayed,<br/>
+          Allah's mercy is greater than all your sins combined.
+        </div>
+        <div style={{ fontSize: 13, fontStyle: "italic", opacity: 0.85, lineHeight: 1.7 }}>
+          The Prophet ﷺ said:<br/>
+          <strong>"The one who repents from sin is like the one who never sinned."</strong><br/>
+          (Ibn Majah)
         </div>
       </div>
 
-      {/* 4 Steps of Tawbah */}
+      {/* Allah's Call to Sinners */}
+      <div className="card" style={{ marginBottom: 16, background: "var(--gold-pale)", border: "2px solid var(--gold)" }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)", marginBottom: 12, textAlign: "center" }}>
+          📖 Allah's Direct Call to Every Sinner
+        </div>
+        <div className="arabic-text" style={{ fontSize: 18, textAlign: "center", background: "transparent", border: "none" }}>
+          ۞ قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنْفُسِهِمْ لَا تَقْنَطُوا مِنْ رَحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا ۚ إِنَّهُ هُوَ الْغَفُورُ الرَّحِيمُ ۞
+        </div>
+        <div style={{ fontSize: 14, fontStyle: "italic", color: "var(--ink)", textAlign: "center", marginBottom: 16, lineHeight: 1.7 }}>
+          "Say: O My servants who have transgressed against themselves,<br/>
+          <strong>do not despair of the mercy of Allah.</strong><br/>
+          Indeed, Allah forgives all sins. Indeed, He is the Forgiving, the Merciful."<br/>
+          <span style={{ fontSize: 12 }}>(Surah Az-Zumar 39:53)</span>
+        </div>
+        <div style={{ fontSize: 13, color: "var(--ink-muted)", textAlign: "center", lineHeight: 1.7 }}>
+          This verse was revealed about people who committed murder, adultery, and all kinds of major sins.<br/>
+          If Allah's mercy encompassed them, <strong>it certainly encompasses you.</strong>
+        </div>
+      </div>
+
+      {/* Why Tawbah Brings Joy to Allah */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)", marginBottom: 12, textAlign: "center" }}>
+          🌅 Your Repentance Brings Joy to Allah
+        </div>
+        <div style={{ fontSize: 14, lineHeight: 1.9, color: "var(--ink)", marginBottom: 12 }}>
+          The Prophet ﷺ told a story that shows <strong>how much Allah loves when you turn back to Him:</strong>
+        </div>
+        <div style={{ background: "var(--emerald-muted)", padding: 16, borderRadius: 10, fontSize: 14, lineHeight: 1.9, fontStyle: "italic", color: "var(--emerald)" }}>
+          "Allah is more pleased with the repentance of His servant than a person who loses his camel in a barren desert, and then finds it unexpectedly. He had given up all hope, lay down in the shade waiting for death — and suddenly, his camel appears before him with all his food and water! He seizes its reins and cries out in overwhelming joy: <strong>'O Allah! You are my servant and I am Your Lord!'</strong> — he makes a mistake out of sheer joy."
+        </div>
+        <div style={{ fontSize: 12, color: "var(--ink-light)", textAlign: "center", marginTop: 8 }}>
+          (Sahih Muslim — Hadith of the man who lost his camel)
+        </div>
+        <div style={{ fontSize: 13, color: "var(--ink)", textAlign: "center", marginTop: 10, fontWeight: 600 }}>
+          Imagine — your single sincere "Astaghfirullah" brings that kind of joy to your Creator.
+        </div>
+      </div>
+
+      {/* Hadiths on Tawbah */}
+      <div className="section-title">💎 Pearls from the Prophet ﷺ on Repentance</div>
+      <div className="card" style={{ marginBottom: 16 }}>
+        {[
+          {
+            hadith: "By Him in Whose Hand is my soul, if you did not sin, Allah would replace you with people who would sin, and they would seek forgiveness from Allah, and He would forgive them.",
+            source: "Sahih Muslim"
+          },
+          {
+            hadith: "Allah extends His Hand at night to accept the repentance of the one who sinned during the day, and He extends His Hand during the day to accept the repentance of the one who sinned at night — until the sun rises from the west.",
+            source: "Sahih Muslim"
+          },
+          {
+            hadith: "When a servant acknowledges his sin and repents, Allah forgives him.",
+            source: "Sahih Bukhari"
+          },
+          {
+            hadith: "Every son of Adam sins, and the best of those who sin are those who constantly repent.",
+            source: "Sunan At-Tirmidhi"
+          },
+          {
+            hadith: "Whoever says 'Astaghfirullah al-adheem, alladhi la ilaha illa huwa, al-hayyul qayyum, wa atubu ilayh' — his sins will be forgiven, even if he fled from the battlefield.",
+            source: "Sunan Abu Dawud"
+          },
+        ].map((h, i) => (
+          <div key={i} style={{ marginBottom: i < 4 ? 14 : 0, paddingBottom: i < 4 ? 14 : 0, borderBottom: i < 4 ? "1px solid var(--border)" : "none" }}>
+            <div style={{ fontSize: 13, lineHeight: 1.8, color: "var(--ink)", marginBottom: 6, fontStyle: "italic" }}>
+              "{h.hadith}"
+            </div>
+            <div style={{ fontSize: 11, color: "var(--gold)", fontWeight: 700 }}>— {h.source}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Qur'anic Verses */}
+      <div className="section-title">📖 Qur'anic Verses on Allah's Mercy</div>
+      <div className="card" style={{ marginBottom: 16 }}>
+        {[
+          {
+            arabic: "وَإِنِّي لَغَفَّارٌ لِمَنْ تَابَ وَآمَنَ وَعَمِلَ صَالِحًا ثُمَّ اهْتَدَىٰ",
+            translation: "\"And indeed, I am the Perpetual Forgiver of whoever repents, believes, does righteousness, and then continues on guidance.\"",
+            ref: "Surah Ta-Ha 20:82"
+          },
+          {
+            arabic: "وَمَنْ تَابَ وَعَمِلَ صَالِحًا فَإِنَّهُ يَتُوبُ إِلَى اللَّهِ مَتَابًا",
+            translation: "\"And whoever repents and does righteousness, then indeed he turns to Allah with true repentance.\"",
+            ref: "Surah Al-Furqan 25:71"
+          },
+          {
+            arabic: "إِنَّ الْحَسَنَاتِ يُذْهِبْنَ السَّيِّئَاتِ ۚ ذَٰلِكَ ذِكْرَىٰ لِلذَّاكِرِينَ",
+            translation: "\"Indeed, good deeds remove bad deeds. That is a reminder for those who remember.\"",
+            ref: "Surah Hud 11:114"
+          },
+          {
+            arabic: "وَمَنْ يَعْمَلْ سُوءًا أَوْ يَظْلِمْ نَفْسَهُ ثُمَّ يَسْتَغْفِرِ اللَّهَ يَجِدِ اللَّهَ غَفُورًا رَحِيمًا",
+            translation: "\"And whoever does evil or wrongs himself, then seeks forgiveness from Allah, will find Allah Forgiving and Merciful.\"",
+            ref: "Surah An-Nisa 4:110"
+          },
+          {
+            arabic: "وَالَّذِينَ إِذَا فَعَلُوا فَاحِشَةً أَوْ ظَلَمُوا أَنْفُسَهُمْ ذَكَرُوا اللَّهَ فَاسْتَغْفَرُوا لِذُنُوبِهِمْ",
+            translation: "\"And those who, when they commit an immorality or wrong themselves, remember Allah and seek forgiveness for their sins.\"",
+            ref: "Surah Al-Imran 3:135"
+          },
+        ].map((v, i) => (
+          <div key={i} style={{ marginBottom: i < 4 ? 16 : 0, paddingBottom: i < 4 ? 16 : 0, borderBottom: i < 4 ? "1px solid var(--border)" : "none" }}>
+            <div style={{ fontFamily: "'Amiri', serif", fontSize: 18, direction: "rtl", textAlign: "center", marginBottom: 8, lineHeight: 2 }}>{v.arabic}</div>
+            <div style={{ fontSize: 13, fontStyle: "italic", textAlign: "center", color: "var(--ink)", marginBottom: 4 }}>{v.translation}</div>
+            <div style={{ fontSize: 11, color: "var(--gold)", textAlign: "center", fontWeight: 700 }}>{v.ref}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* 4 Conditions of Tawbah */}
       <div className="section-title">📖 The 4 Conditions of Sincere Tawbah</div>
       <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)", marginBottom: 4 }}>1. Stop the Sin Immediately</div>
-          <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>Cease the sinful action right now, in this moment.</div>
+        {[
+          { num: "1", title: "Stop the Sin Immediately", desc: "Cease the sinful action right now, in this moment. Do not delay." },
+          { num: "2", title: "Feel Genuine Regret", desc: "Let your heart feel true sorrow and remorse for disobeying Allah." },
+          { num: "3", title: "Resolve Never to Return", desc: "Make a firm, sincere commitment in your heart to abandon the sin permanently." },
+          { num: "4", title: "Restore Rights (If Applicable)", desc: "If the sin involved another person's rights, seek their forgiveness and make amends." },
+        ].map((step, i) => (
+          <div key={i} style={{ marginBottom: i < 3 ? 16 : 0, display: "flex", gap: 12 }}>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--emerald)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, flexShrink: 0 }}>{step.num}</div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "var(--emerald)", marginBottom: 4 }}>{step.title}</div>
+              <div style={{ fontSize: 13, color: "var(--ink-muted)", lineHeight: 1.6 }}>{step.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Salat al-Tawbah */}
+      <div className="section-title">🕌 Salat al-Tawbah — The Prayer of Repentance</div>
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ink)", marginBottom: 12 }}>
+          A beautiful sunnah whenever you fall into sin:
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)", marginBottom: 4 }}>2. Feel Genuine Regret</div>
-          <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>Let your heart feel sorrow for disobeying Allah.</div>
-        </div>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)", marginBottom: 4 }}>3. Resolve Never to Return</div>
-          <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>Make a firm commitment in your heart to abandon the sin.</div>
-        </div>
-        <div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)", marginBottom: 4 }}>4. Restore Rights (If Applicable)</div>
-          <div style={{ fontSize: 13, color: "var(--ink-muted)" }}>If the sin involved another person, seek their forgiveness.</div>
+        <ul style={{ marginLeft: 20, fontSize: 13, lineHeight: 2, color: "var(--ink-muted)", marginBottom: 14 }}>
+          <li>Make wudu (ablution) with care and presence of heart</li>
+          <li>Pray 2 rak'ahs (units) of nafl prayer with full concentration</li>
+          <li>Do not pray during the prohibited times (after Fajr until sunrise, and after Asr until Maghrib)</li>
+          <li>After salam, raise your hands and make sincere dua, cry to Allah</li>
+          <li>Admit your sin, ask for forgiveness, and resolve not to return</li>
+        </ul>
+        <div style={{ background: "var(--emerald-muted)", padding: 14, borderRadius: 10, fontSize: 13, fontStyle: "italic", lineHeight: 1.7, color: "var(--emerald)" }}>
+          The Prophet ﷺ said: "There is no servant who commits a sin, then purifies himself (makes wudu), then prays two rak'ahs, then seeks forgiveness from Allah — except that Allah forgives him." (Abu Dawud)
         </div>
       </div>
 
-      {/* Sin Categories */}
-      <div className="section-title">⚠ Select a Sin for Tawbah Guide</div>
+      {/* Master Du'a for Forgiveness */}
+      <div className="section-title">🤲 Sayyidul Istighfar — The Master of Forgiveness</div>
+      <div className="card" style={{ background: "var(--emerald-muted)", textAlign: "center", marginBottom: 16 }}>
+        <div style={{ fontFamily: "'Amiri', serif", fontSize: 17, marginBottom: 14, direction: "rtl", lineHeight: 2.2 }}>
+          اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلَّا أَنْتَ<br/>
+          خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ<br/>
+          أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ<br/>
+          أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي<br/>
+          فَاغْفِرْ لِي فَإِنَّهُ لا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ
+        </div>
+        <div style={{ fontSize: 13, fontStyle: "italic", color: "var(--ink-muted)", marginBottom: 12, lineHeight: 1.7 }}>
+          "O Allah, You are my Lord. There is no god but You. You created me and I am Your servant.<br/>
+          I am upon Your covenant and Your promise as much as I am able.<br/>
+          I seek refuge in You from the evil I have done.<br/>
+          I acknowledge Your blessings upon me and I acknowledge my sin.<br/>
+          So forgive me, for none forgives sins except You."
+        </div>
+        <div style={{ fontSize: 12, color: "var(--emerald)", fontWeight: 600, lineHeight: 1.7 }}>
+          The Prophet ﷺ said: "Whoever says this with complete certainty in the morning and dies that day,<br/>
+          will enter Paradise. And whoever says it in the evening and dies that night, will enter Paradise."<br/>
+          <span style={{ fontSize: 11 }}>(Sahih Bukhari)</span>
+        </div>
+      </div>
+
+      {/* Quick Daily Duas */}
+      <div className="section-title">📿 Quick Duas for Daily Forgiveness</div>
+      <div className="card" style={{ marginBottom: 16 }}>
+        {[
+          { arabic: "رَبِّ اغْفِرْ لِي", trans: "Rabbighfir li — \"My Lord, forgive me\"", note: "The Prophet ﷺ said this 100 times daily" },
+          { arabic: "أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ", trans: "Astaghfirullah wa atubu ilayh — \"I seek forgiveness from Allah and repent to Him\"", note: "The Prophet ﷺ said this 70-100 times daily" },
+          { arabic: "سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ، اللَّهُمَّ اغْفِرْ لِي", trans: "Subhanakallahumma rabbana wa bihamdika, allahummaghfirli — \"Glory be to You, O Allah our Lord, and praise; O Allah forgive me\"", note: "Recommended after ruku in prayer" },
+          { arabic: "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ الَّذِي لا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ وَأَتُوبُ إِلَيْهِ", trans: "Astaghfirullah al-adheem alladhi la ilaha illa huwa al-hayyul qayyum wa atubu ilayh — \"I seek forgiveness from Allah the Almighty, besides Whom there is no god, the Ever-Living, the Sustainer, and I repent to Him\"", note: "Forgives sins even if one fled from battle (Abu Dawud)" },
+        ].map((d, i) => (
+          <div key={i} style={{ marginBottom: i < 3 ? 16 : 0, paddingBottom: i < 3 ? 16 : 0, borderBottom: i < 3 ? "1px solid var(--border)" : "none" }}>
+            <div style={{ fontFamily: "'Amiri', serif", fontSize: 18, direction: "rtl", textAlign: "center", marginBottom: 6 }}>{d.arabic}</div>
+            <div style={{ fontSize: 13, textAlign: "center", color: "var(--ink)", fontWeight: 600 }}>{d.trans}</div>
+            <div style={{ fontSize: 11, textAlign: "center", color: "var(--ink-light)", marginTop: 4, fontStyle: "italic" }}>{d.note}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Select a Sin Section */}
+      <div className="section-title">⚠ Need Specific Guidance? Select a Sin Below</div>
       
       <details className="card" style={{ marginBottom: 12 }}>
         <summary style={{ fontSize: 14, fontWeight: 700, color: "var(--red-sin)", cursor: "pointer", padding: "8px 0" }}>
@@ -2491,9 +2661,8 @@ function TawbahPage() {
           {commonSins.filter(s => s.severity === "Major").map((sin, idx) => (
             <button
               key={idx}
-              className={`nav-btn ${selectedSin === sin.name ? "active" : ""}`}
               onClick={() => handleSinSelect(sin.name)}
-              style={{ background: selectedSin === sin.name ? "var(--red-sin)" : "var(--red-pale)", color: selectedSin === sin.name ? "white" : "var(--red-sin)", fontSize: 12 }}
+              style={{ background: selectedSin === sin.name ? "var(--red-sin)" : "var(--red-pale)", color: selectedSin === sin.name ? "white" : "var(--red-sin)", fontSize: 12, padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 10, cursor: "pointer", fontFamily: "'Lora', serif" }}
             >
               {sin.name}
             </button>
@@ -2509,9 +2678,8 @@ function TawbahPage() {
           {commonSins.filter(s => s.severity === "Minor").map((sin, idx) => (
             <button
               key={idx}
-              className={`nav-btn ${selectedSin === sin.name ? "active" : ""}`}
               onClick={() => handleSinSelect(sin.name)}
-              style={{ background: selectedSin === sin.name ? "var(--gold)" : "var(--gold-pale)", color: selectedSin === sin.name ? "white" : "var(--gold)", fontSize: 12 }}
+              style={{ background: selectedSin === sin.name ? "var(--gold)" : "var(--gold-pale)", color: selectedSin === sin.name ? "white" : "var(--gold)", fontSize: 12, padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 10, cursor: "pointer", fontFamily: "'Lora', serif" }}
             >
               {sin.name}
             </button>
@@ -2529,18 +2697,7 @@ function TawbahPage() {
             placeholder="e.g., I was harsh with my child, I missed Fajr..."
             style={{ flex: 1, padding: "12px 14px", border: "1px solid var(--border)", borderRadius: 10, fontFamily: "'Lora', serif", background: "var(--parchment)" }}
           />
-          <button 
-            className="btn-primary" 
-            onClick={() => {
-              const customSin = document.getElementById("customSin").value;
-              if (customSin.trim()) {
-                handleSinSelect(customSin);
-              }
-            }}
-            style={{ padding: "12px 20px" }}
-          >
-            Get Guide
-          </button>
+          <button className="btn-primary" onClick={() => { const v = document.getElementById("customSin").value; if (v.trim()) handleSinSelect(v); }} style={{ padding: "12px 20px" }}>Get Guide</button>
         </div>
       </div>
 
@@ -2548,90 +2705,26 @@ function TawbahPage() {
       {showGuide && (
         <div className="kind-words-box" style={{ background: "linear-gradient(135deg, var(--gold-pale), var(--emerald-muted))", marginBottom: 16 }}>
           <div className="kind-words-label" style={{ color: "var(--emerald)" }}>🌟 Tawbah Guide for: {selectedSin}</div>
-          <div className="kind-words-text" style={{ color: "var(--ink)", fontSize: 14, whiteSpace: "pre-wrap", lineHeight: 1.8 }}>
-            {tawbahGuide}
-          </div>
-          <button className="btn-sm" onClick={resetGuide} style={{ marginTop: 12 }}>
-            ✕ Clear
-          </button>
+          <div className="kind-words-text" style={{ color: "var(--ink)", fontSize: 14, whiteSpace: "pre-wrap", lineHeight: 1.8 }}>{tawbahGuide}</div>
+          <button className="btn-sm" onClick={resetGuide} style={{ marginTop: 12 }}>✕ Clear</button>
         </div>
       )}
 
-      {/* Salat al-Tawbah Prayer */}
-      <div className="section-title">🕌 The Prayer of Repentance</div>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>How to Pray Salat al-Tawbah:</div>
-        <ul style={{ marginLeft: 20, fontSize: 13, lineHeight: 1.8, color: "var(--ink-muted)" }}>
-          <li>Make wudu (ablution)</li>
-          <li>Pray 2 rak'ahs (units) of nafl prayer</li>
-          <li>Do not pray during prohibited times (after Fajr, after Asr)</li>
-          <li>After salam, make sincere dua asking for forgiveness</li>
-          <li>Make a firm commitment to avoid the sin</li>
-        </ul>
-        <div style={{ marginTop: 10, fontSize: 12, fontStyle: "italic", color: "var(--ink-light)" }}>
-          The Prophet ﷺ said: "If a person commits a sin then performs wudu and prays 2 rak'ahs seeking forgiveness, Allah forgives him." (Abu Dawud)
+      {/* Final Encouragement */}
+      <div className="card" style={{ background: "linear-gradient(135deg, var(--emerald), #0f3d27)", color: "white", textAlign: "center", marginBottom: 16 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>🌅 A Final Word of Hope</div>
+        <div style={{ fontSize: 14, lineHeight: 1.9, opacity: 0.95 }}>
+          If your sins were to reach the clouds of the sky,<br/>
+          and then you were to seek forgiveness from Allah,<br/>
+          <strong>He would forgive you.</strong>
         </div>
-      </div>
-
-      {/* Best Dua for Forgiveness */}
-      <div className="section-title">🤲 The Master Du'a for Forgiveness</div>
-      <div className="card" style={{ background: "var(--emerald-muted)", textAlign: "center" }}>
-        <div style={{ fontFamily: "'Amiri', serif", fontSize: 18, marginBottom: 12, direction: "rtl", lineHeight: 1.8 }}>
-          اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلَّا أَنْتَ<br/>
-          خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ<br/>
-          أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ<br/>
-          أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي<br/>
-          فَاغْفِرْ لِي فَإِنَّهُ لا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ
-        </div>
-        <div style={{ fontSize: 14, fontStyle: "italic", color: "var(--ink-muted)" }}>
-          "O Allah, You are my Lord. There is no god but You. You created me and I am Your servant... I admit my sin, so forgive me, for none forgives sins but You."
-        </div>
-        <div style={{ marginTop: 10, fontSize: 11, color: "var(--ink-light)" }}>
-          The Prophet ﷺ called this "Sayyidul Istighfar" — the best way to seek forgiveness. Whoever says it with certainty in the morning and dies that day enters Paradise.
-        </div>
-      </div>
-
-      {/* Short Duas for Forgiveness */}
-      <div className="section-title">📿 Quick Duas for Daily Forgiveness</div>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ fontFamily: "'Amiri', serif", fontSize: 18, direction: "rtl", textAlign: "center" }}>رَبِّ اغْفِرْ لِي</div>
-          <div style={{ fontSize: 12, textAlign: "center" }}>Rabbighfir li — "My Lord, forgive me" (Say 100x daily)</div>
-        </div>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ fontFamily: "'Amiri', serif", fontSize: 18, direction: "rtl", textAlign: "center" }}>أَسْتَغْفِرُ اللَّهَ رَبِّي مِنْ كُلِّ ذَنْبٍ وَأَتُوبُ إِلَيْهِ</div>
-          <div style={{ fontSize: 12, textAlign: "center" }}>Astaghfirullah rabbi min kulli dhanbin wa atubu ilayh — "I seek forgiveness from Allah, my Lord, from every sin and repent to Him"</div>
-        </div>
-        <div>
-          <div style={{ fontFamily: "'Amiri', serif", fontSize: 18, direction: "rtl", textAlign: "center" }}>سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ</div>
-          <div style={{ fontSize: 12, textAlign: "center" }}>SubhanAllahi wa bihamdihi, astaghfirullaha wa atubu ilayh — "Glory be to Allah and His praise, I seek forgiveness from Allah and repent to Him"</div>
-        </div>
-      </div>
-
-      {/* Quranic Verses on Repentance */}
-      <div className="section-title">📖 Allah's Promise of Forgiveness</div>
-      <div className="card" style={{ marginBottom: 16 }}>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ fontFamily: "'Amiri', serif", fontSize: 16, direction: "rtl", textAlign: "center", marginBottom: 6 }}>
-            ۞ قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنْفُسِهِمْ لَا تَقْنَطُوا مِنْ رَحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا ۚ إِنَّهُ هُوَ الْغَفُورُ الرَّحِيمُ ۞
-          </div>
-          <div style={{ fontSize: 13, fontStyle: "italic", textAlign: "center" }}>
-            "Say: O My servants who have transgressed against themselves, do not despair of Allah's mercy. Indeed, Allah forgives all sins. Indeed, He is the Forgiving, the Merciful." (Surah Az-Zumar 39:53)
-          </div>
-        </div>
-        <div>
-          <div style={{ fontFamily: "'Amiri', serif", fontSize: 16, direction: "rtl", textAlign: "center", marginBottom: 6 }}>
-            وَإِنِّي لَغَفَّارٌ لِمَنْ تَابَ وَآمَنَ وَعَمِلَ صَالِحًا ثُمَّ اهْتَدَىٰ
-          </div>
-          <div style={{ fontSize: 13, fontStyle: "italic", textAlign: "center" }}>
-            "And indeed, I am the Perpetual Forgiver of whoever repents, believes, does righteousness, and then continues on guidance." (Surah Ta-Ha 20:82)
-          </div>
-        </div>
+        <div style={{ fontSize: 12, marginTop: 10, opacity: 0.8 }}>— Hadith Qudsi (Tirmidhi)</div>
       </div>
 
       <div className="ornament" style={{ marginTop: 16 }}>❧ ✦ ❧</div>
-      <div style={{ textAlign: "center", fontSize: 12, color: "var(--ink-light)", fontStyle: "italic" }}>
-        "And whoever does evil or wrongs himself but then seeks forgiveness from Allah will find Allah Forgiving and Merciful." (4:110)
+      <div style={{ textAlign: "center", fontSize: 13, color: "var(--ink-light)", fontStyle: "italic", lineHeight: 1.8 }}>
+        "And whoever does evil or wrongs himself but then seeks forgiveness from Allah<br/>
+        will find Allah Forgiving and Merciful." (Surah An-Nisa 4:110)
       </div>
     </div>
   );

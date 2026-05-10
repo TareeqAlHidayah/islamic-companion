@@ -3605,61 +3605,61 @@ function DisclaimerPage() {
 function UpdatesPage() {
   const updates = [
     { 
-      date: "11 May 2025", 
+      date: "11 May 2026", 
       title: "📊 Enhanced Reports", 
       desc: "Added Week/Month/All Time/Custom date filters. Bar charts now show full history, not just 7 days. Added today's dhikr breakdown.",
       type: "feature"
     },
     { 
-      date: "10 May 2025", 
+      date: "10 May 2026", 
       title: "📿 Tasbih Counter", 
       desc: "New dhikr counter with 10 adhkar including SubhanAllah, Alhamdulillah, Allahu Akbar, Salawat, and more. Daily tracking with tap-to-count.",
       type: "feature"
     },
     { 
-      date: "09 May 2025", 
+      date: "09 May 2026", 
       title: "🔒 PIN Protection", 
       desc: "Settings page added. Set a 4-digit PIN to lock private pages like Journal, Tracker, and Review.",
       type: "feature"
     },
     { 
-      date: "08 May 2025", 
+      date: "08 May 2026", 
       title: "📝 Journal Upgrade", 
       desc: "Edit and delete journal entries. Collapsible view shows date previews. Delete confirmation added.",
       type: "feature"
     },
     { 
-      date: "07 May 2025", 
+      date: "07 May 2026", 
       title: "🕋 Tawbah Enhancement", 
       desc: "Added Qur'anic verses, authentic hadiths, Sayyidul Istighfar, Salat al-Tawbah guide, and specific sin-by-sin guidance.",
       type: "feature"
     },
     { 
-      date: "06 May 2025", 
+      date: "06 May 2026", 
       title: "🎨 UI Refresh", 
       desc: "Lighter pastel colors throughout the app. Improved text readability. Mobile-friendly navigation with wrapped tabs.",
       type: "improvement"
     },
     { 
-      date: "05 May 2025", 
+      date: "05 May 2026", 
       title: "💾 Backup System", 
       desc: "Download and restore all data as JSON files. Weekly backup reminder added to protect your records.",
       type: "feature"
     },
     { 
-      date: "04 May 2025", 
+      date: "04 May 2026", 
       title: "📱 PWA Support", 
       desc: "App can now be installed on phone home screen with custom icon and splash screen.",
       type: "feature"
     },
     { 
-      date: "03 May 2025", 
+      date: "03 May 2026", 
       title: "📋 Major Sins Expanded", 
       desc: "Added Backbiting, Lying, Watching Improper Videos, and Misbehaving with Parents as major sins with detailed guides.",
       type: "improvement"
     },
     { 
-      date: "01 May 2025", 
+      date: "01 May 2026", 
       title: "🚀 Initial Release", 
       desc: "Deeds Tracker, Sins Tracker, Quran Library, Hadith Books, Tafsir, Feelings Companion, Daily Review, and Personal Journal.",
       type: "major"

@@ -1629,6 +1629,7 @@ function JournalPage() {
   });
   const [text, setText] = useState("");
   const [mood, setMood] = useState("");
+  const [editingId, setEditingId] = useState(null);
   const [aiReflection, setAiReflection] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -1636,17 +1637,51 @@ function JournalPage() {
 
   const save = () => {
     if (!text.trim()) return;
-    const entry = { id: Date.now(), text, mood, ts: Date.now() };
-    const updated = [entry, ...entries];
-    setEntries(updated);
-    localStorage.setItem("islamic-journal", JSON.stringify(updated));
-    setText(""); setMood(""); setAiReflection("");
+    
+    if (editingId) {
+      const updated = entries.map(e => 
+        e.id === editingId ? { ...e, text, mood, editedAt: Date.now() } : e
+      );
+      setEntries(updated);
+      localStorage.setItem("islamic-journal", JSON.stringify(updated));
+      setEditingId(null);
+    } else {
+      const entry = { id: Date.now(), text, mood, ts: Date.now() };
+      const updated = [entry, ...entries];
+      setEntries(updated);
+      localStorage.setItem("islamic-journal", JSON.stringify(updated));
+    }
+    
+    setText(""); 
+    setMood(""); 
+    setAiReflection("");
+  };
+
+  const startEdit = (entry) => {
+    setEditingId(entry.id);
+    setText(entry.text);
+    setMood(entry.mood);
+    setAiReflection("");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setText("");
+    setMood("");
+    setAiReflection("");
   };
 
   const del = (id) => {
-    const updated = entries.filter(e => e.id !== id);
-    setEntries(updated);
-    localStorage.setItem("islamic-journal", JSON.stringify(updated));
+    if (window.confirm("⚠️ Are you sure you want to delete this journal entry?\n\nThis action cannot be undone.")) {
+      const updated = entries.filter(e => e.id !== id);
+      setEntries(updated);
+      localStorage.setItem("islamic-journal", JSON.stringify(updated));
+      
+      if (editingId === id) {
+        cancelEdit();
+      }
+    }
   };
 
   const getReflection = async () => {
@@ -1657,11 +1692,12 @@ function JournalPage() {
       Journal entry: "${text}"
       Current mood: "${mood || "unspecified"}"
       
-      Write a warm, short spiritual reflection (3-4 sentences) that:
-      - Acknowledges their feelings with empathy
-      - Offers a gentle Islamic perspective or reminder
-      - Suggests one small actionable Islamic practice (like a dua, dhikr, or reflection)
-      Be like a kind older Muslim mentor speaking warmly. No bullet points.`
+      Write a warm, heartfelt spiritual reflection that acknowledges their feelings with empathy,
+      offers a gentle Islamic perspective or reminder, and suggests a small actionable Islamic practice
+      (like a dua, dhikr, or reflection).
+      
+      Be like a kind older Muslim mentor speaking warmly. You can write as much or as little as feels
+      natural. No bullet points.`
     );
     setAiReflection(result);
     setAiLoading(false);
@@ -1675,28 +1711,54 @@ function JournalPage() {
       </div>
 
       <div className="card">
-        <div style={{fontSize:13,fontWeight:600,color:"var(--emerald)",marginBottom:10}}>New Entry</div>
-        <div style={{marginBottom:10,display:"flex",flexWrap:"wrap",gap:6}}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--emerald)", marginBottom: 10 }}>
+          {editingId ? "✏️ Edit Entry" : "📝 New Entry"}
+        </div>
+        
+        {editingId && (
+          <div style={{ 
+            background: "var(--gold-pale)", 
+            padding: "8px 14px", 
+            borderRadius: 8, 
+            marginBottom: 12, 
+            fontSize: 12, 
+            color: "var(--gold)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}>
+            <span>✏️ Editing entry from {formatDate(entries.find(e => e.id === editingId)?.ts)}</span>
+            <button className="btn-sm" onClick={cancelEdit} style={{ fontSize: 11 }}>Cancel</button>
+          </div>
+        )}
+        
+        <div style={{ marginBottom: 10, display: "flex", flexWrap: "wrap", gap: 6 }}>
           {moods.map(m => (
             <button
               key={m}
               className={`tab-pill ${mood === m ? "active" : ""}`}
-              style={{fontSize:11,padding:"5px 12px"}}
+              style={{ fontSize: 11, padding: "5px 12px" }}
               onClick={() => setMood(m)}
             >{m}</button>
           ))}
         </div>
+        
         <textarea
           className="journal-textarea"
-          placeholder="بِسْمِ اللَّهِ — Begin in the name of Allah…&#10;&#10;Write freely. This is your space. What's on your heart today?"
+          placeholder="بِسْمِ اللَّهِ — Begin in the name of Allah…&#10;&#10;This is your sacred space. Write as much as your heart needs to say. There are no limits here."
           value={text}
           onChange={e => setText(e.target.value)}
         />
-        <div style={{display:"flex",gap:10,marginTop:12,flexWrap:"wrap"}}>
-          <button className="btn-primary" onClick={save}>Save Entry</button>
-          <button className="btn-gold" onClick={getReflection} disabled={aiLoading || !text.trim()}>
-            {aiLoading ? "Reflecting..." : "✦ Get Reflection"}
+        
+        <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+          <button className="btn-primary" onClick={save}>
+            {editingId ? "✨ Update Entry" : "💾 Save Entry"}
           </button>
+          {!editingId && (
+            <button className="btn-gold" onClick={getReflection} disabled={aiLoading || !text.trim()}>
+              {aiLoading ? "Reflecting..." : "✦ Get Reflection"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -1708,6 +1770,7 @@ function JournalPage() {
           </div>
         </div>
       )}
+      
       {aiReflection && (
         <div className="kind-words-box">
           <div className="kind-words-label">✦ Spiritual Reflection</div>
@@ -1717,18 +1780,75 @@ function JournalPage() {
 
       {entries.length > 0 && (
         <>
-          <div className="section-title">Previous Entries</div>
+          <div className="section-title">📚 Previous Entries ({entries.length})</div>
           {entries.map(e => (
-            <div key={e.id} className="journal-entry">
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div>
-                  <div className="journal-date">{formatDate(e.ts)}</div>
+            <details key={e.id} className="journal-entry" style={{ 
+              borderLeft: editingId === e.id ? "4px solid var(--gold)" : "1px solid var(--border)",
+              background: editingId === e.id ? "var(--gold-pale)" : "var(--parchment)",
+              cursor: "pointer"
+            }}>
+              <summary style={{ 
+                display: "flex", 
+                justifyContent: "space-between", 
+                alignItems: "flex-start",
+                listStyle: "none",
+                outline: "none"
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div className="journal-date">
+                    📅 {formatDate(e.ts)}
+                    {e.editedAt && <span style={{ fontSize: 10, color: "var(--ink-light)", fontStyle: "italic" }}> (edited)</span>}
+                  </div>
                   {e.mood && <div className="journal-mood">{e.mood}</div>}
+                  <div style={{ 
+                    fontSize: 12, 
+                    color: "var(--ink-light)", 
+                    marginTop: 6,
+                    fontStyle: "italic",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: "250px"
+                  }}>
+                    {e.text.substring(0, 80)}{e.text.length > 80 ? "..." : ""}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--gold)", marginTop: 4 }}>
+                    Click to expand ▼
+                  </div>
                 </div>
-                <button className="btn-sm del" onClick={() => del(e.id)}>✕</button>
+                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                  <button 
+                    className="btn-sm" 
+                    onClick={(ev) => { ev.preventDefault(); startEdit(e); }}
+                    style={{ 
+                      borderColor: "var(--gold)", 
+                      color: "var(--gold)",
+                      fontSize: 11
+                    }}
+                    title="Edit this entry"
+                  >
+                    ✏️
+                  </button>
+                  <button 
+                    className="btn-sm del" 
+                    onClick={(ev) => { ev.preventDefault(); del(e.id); }}
+                    style={{ fontSize: 11 }}
+                    title="Delete this entry"
+                  >
+                    🗑
+                  </button>
+                </div>
+              </summary>
+              <div className="journal-content" style={{ 
+                whiteSpace: "pre-wrap",
+                marginTop: 12,
+                paddingTop: 12,
+                borderTop: "1px solid var(--border)",
+                cursor: "default"
+              }}>
+                {e.text}
               </div>
-              <div className="journal-content">{e.text}</div>
-            </div>
+            </details>
           ))}
         </>
       )}
@@ -1738,9 +1858,379 @@ function JournalPage() {
           Your journal is empty.<br/>Begin your first reflection above.
         </div>
       )}
+      
+      <div className="ornament" style={{ marginTop: 24 }}>❧ ✦ ❧</div>
     </div>
   );
 }
+
+
+// ── Daily Report Page (Bar Charts - Lighter & Smaller) ───────────────────────
+function DailyReportPage() {
+  const [trackerData, setTrackerData] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("islamic-daily-tracker") || "{}"); } catch { return {}; }
+  });
+  const [tasbihData, setTasbihData] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("tasbih-tracker") || "{}"); } catch { return {}; }
+  });
+
+  const getLast7Days = () => {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push(d.toISOString().split('T')[0]);
+    }
+    return days;
+  };
+
+  const last7Days = getLast7Days();
+
+  const getDeedsData = () => last7Days.map(date => {
+    const data = trackerData[date];
+    return data ? Object.values(data.deeds || {}).filter(Boolean).length : 0;
+  });
+
+  const getSinsData = () => last7Days.map(date => {
+    const data = trackerData[date];
+    if (!data) return 0;
+    return Object.values(data.majorSins || {}).filter(Boolean).length + Object.values(data.minorSins || {}).filter(Boolean).length;
+  });
+
+  const getTasbihData = () => last7Days.map(date => {
+    const data = tasbihData[date];
+    return data ? Object.values(data).reduce((sum, c) => sum + (c || 0), 0) : 0;
+  });
+
+  const formatDay = (dateStr) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-GB", { weekday: "short" });
+  };
+
+  const deedsData = getDeedsData();
+  const sinsData = getSinsData();
+  const tasbihCounts = getTasbihData();
+
+  const maxDeeds = Math.max(...deedsData, 1);
+  const maxSins = Math.max(...sinsData, 1);
+  const maxTasbih = Math.max(...tasbihCounts, 1);
+
+  const totalDeeds = deedsData.reduce((a, b) => a + b, 0);
+  const totalSins = sinsData.reduce((a, b) => a + b, 0);
+  const totalTasbih = tasbihCounts.reduce((a, b) => a + b, 0);
+
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">📊 Spiritual Report</div>
+        <div className="page-desc">Your last 7 days of good deeds, sins, and dhikr</div>
+      </div>
+
+      {/* Summary Cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 20 }}>
+        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, #AFE9D2, #d4f5e8)", color: "#1a5c3a" }}>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{totalDeeds}</div>
+          <div style={{ fontSize: 10, opacity: 0.8 }}>Deeds</div>
+        </div>
+        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, #AFE3E9, #d4f2f5)", color: "#1a5c3a" }}>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{totalSins}</div>
+          <div style={{ fontSize: 10, opacity: 0.8 }}>Sins</div>
+        </div>
+        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, #AFC6E9, #d4ddf5)", color: "#1a5c3a" }}>
+          <div style={{ fontSize: 24, fontWeight: 700 }}>{totalTasbih}</div>
+          <div style={{ fontSize: 10, opacity: 0.8 }}>Dhikr</div>
+        </div>
+      </div>
+
+      {/* Good Deeds Chart */}
+      <div className="card" style={{ marginBottom: 14, paddingBottom: 10 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#2a7a50", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+          ✨ Good Deeds
+        </div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
+          {last7Days.map((date, i) => (
+            <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#2a7a50", marginBottom: 4 }}>
+                {deedsData[i]}
+              </div>
+              <div style={{
+                width: 20,
+                height: `${(deedsData[i] / maxDeeds) * 100}%`,
+                minHeight: deedsData[i] > 0 ? 6 : 2,
+                background: deedsData[i] > 0 ? "linear-gradient(to top, #AFE9D2, #7bc4a0)" : "#e8e8e8",
+                borderRadius: "4px 4px 0 0",
+                transition: "height 0.4s",
+              }} />
+              <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Sins Chart */}
+      <div className="card" style={{ marginBottom: 14, paddingBottom: 10 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#7a4040", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+          ⚠ Sins
+        </div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
+          {last7Days.map((date, i) => (
+            <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#7a4040", marginBottom: 4 }}>
+                {sinsData[i]}
+              </div>
+              <div style={{
+                width: 20,
+                height: `${(sinsData[i] / maxSins) * 100}%`,
+                minHeight: sinsData[i] > 0 ? 6 : 2,
+                background: sinsData[i] > 0 ? "linear-gradient(to top, #AFE3E9, #7ab8c4)" : "#e8e8e8",
+                borderRadius: "4px 4px 0 0",
+                transition: "height 0.4s",
+              }} />
+              <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tasbih Chart */}
+      <div className="card" style={{ marginBottom: 14, paddingBottom: 10 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#5a5a8a", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
+          📿 Dhikr Count
+        </div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
+          {last7Days.map((date, i) => (
+            <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#5a5a8a", marginBottom: 4 }}>
+                {tasbihCounts[i]}
+              </div>
+              <div style={{
+                width: 20,
+                height: `${(tasbihCounts[i] / maxTasbih) * 100}%`,
+                minHeight: tasbihCounts[i] > 0 ? 6 : 2,
+                background: tasbihCounts[i] > 0 ? "linear-gradient(to top, #AFC6E9, #8a9ec4)" : "#e8e8e8",
+                borderRadius: "4px 4px 0 0",
+                transition: "height 0.4s",
+              }} />
+              <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tasbih Detail — F4A8FF accent */}
+      <div className="card" style={{ marginBottom: 14, background: "linear-gradient(135deg, #F4A8FF20, #F4A8FF08)", border: "1px solid #F4A8FF40" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#8a4a9a", marginBottom: 10 }}>📿 Today's Dhikr Breakdown</div>
+        {(() => {
+          const today = new Date().toISOString().split('T')[0];
+          const todayData = tasbihData[today] || {};
+          const dhikrNames = {
+            subhanallah: "SubhanAllah", alhamdulillah: "Alhamdulillah", allahuakbar: "Allahu Akbar",
+            astaghfirullah: "Astaghfirullah", salawat: "Salawat", lailahaillallah: "La ilaha illallah",
+            subhanallahwabihamdihi: "SubhanAllah wa bihamdihi", lahaulawalaquwwata: "La hawla wa la quwwata",
+            hasbiyallahu: "Hasbiyallahu", thirdkalima: "Third Kalima"
+          };
+          const entries = Object.entries(todayData).filter(([,v]) => v > 0);
+          if (entries.length === 0) return <div style={{ fontSize: 12, color: "var(--ink-light)", fontStyle: "italic", textAlign: "center" }}>No dhikr tracked today yet. Start tapping! 📿</div>;
+          return entries.map(([key, val]) => (
+            <div key={key} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid #F4A8FF20", fontSize: 12 }}>
+              <span style={{ color: "var(--ink)" }}>{dhikrNames[key] || key}</span>
+              <span style={{ fontWeight: 700, color: "#8a4a9a" }}>{val}</span>
+            </div>
+          ));
+        })()}
+      </div>
+
+      <div className="card" style={{ background: "var(--emerald-muted)", textAlign: "center" }}>
+        <div style={{ fontSize: 13, fontStyle: "italic", color: "var(--emerald)" }}>
+          "And whoever does an atom's weight of good will see it, and whoever does an atom's weight of evil will see it." (99:7-8)
+        </div>
+      </div>
+
+      <div className="ornament" style={{ marginTop: 16 }}>❧ ✦ ❧</div>
+    </div>
+  );
+}
+
+// ── Tasbih Page ──────────────────────────────────────────────────────────────
+function TasbihPage() {
+  const [selectedDhikr, setSelectedDhikr] = useState("subhanallah");
+  const [counts, setCounts] = useState(() => {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+      const saved = JSON.parse(localStorage.getItem("tasbih-tracker") || "{}");
+      return saved[today] || {
+        subhanallah: 0,
+        alhamdulillah: 0,
+        allahuakbar: 0,
+        astaghfirullah: 0,
+        salawat: 0,
+        lailahaillallah: 0,
+        subhanallahwabihamdihi: 0,
+        lahaulawalaquwwata: 0,
+        hasbiyallahu: 0,
+        thirdkalima: 0,
+      };
+    } catch {
+      return {
+        subhanallah: 0, alhamdulillah: 0, allahuakbar: 0, astaghfirullah: 0,
+        salawat: 0, lailahaillallah: 0, subhanallahwabihamdihi: 0,
+        lahaulawalaquwwata: 0, hasbiyallahu: 0, thirdkalima: 0,
+      };
+    }
+  });
+
+
+
+
+
+  const dhikrList = [
+    { id: "subhanallah", arabic: "سُبْحَانَ اللَّهِ", trans: "SubhanAllah", meaning: "Glory be to Allah", reward: "A tree is planted in Paradise for each recitation", count: counts.subhanallah },
+    { id: "alhamdulillah", arabic: "الْحَمْدُ لِلَّهِ", trans: "Alhamdulillah", meaning: "All praise is for Allah", reward: "Fills the scales of good deeds", count: counts.alhamdulillah },
+    { id: "allahuakbar", arabic: "اللَّهُ أَكْبَرُ", trans: "Allahu Akbar", meaning: "Allah is the Greatest", reward: "Beloved words to Allah", count: counts.allahuakbar },
+    { id: "astaghfirullah", arabic: "أَسْتَغْفِرُ اللَّهَ", trans: "Astaghfirullah", meaning: "I seek forgiveness from Allah", reward: "Relief from every worry and hardship", count: counts.astaghfirullah },
+    { id: "salawat", arabic: "اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ", trans: "Allahumma salli 'ala Muhammad", meaning: "O Allah, send blessings upon Muhammad ﷺ", reward: "Allah sends 10 blessings upon you", count: counts.salawat },
+    { id: "lailahaillallah", arabic: "لَا إِلَٰهَ إِلَّا اللَّهُ", trans: "La ilaha illallah", meaning: "There is no god but Allah", reward: "The best dhikr; key to Paradise", count: counts.lailahaillallah },
+    { id: "subhanallahwabihamdihi", arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", trans: "SubhanAllahi wa bihamdihi", meaning: "Glory be to Allah and His praise", reward: "100x forgives all sins like foam of the sea", count: counts.subhanallahwabihamdihi },
+    { id: "lahaulawalaquwwata", arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", trans: "La hawla wa la quwwata illa billah", meaning: "No power, no might except by Allah", reward: "A treasure from Paradise", count: counts.lahaulawalaquwwata },
+    { id: "hasbiyallahu", arabic: "حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ", trans: "Hasbiyallahu la ilaha illa huwa", meaning: "Allah is sufficient for me", reward: "The dua of Ibrahim (AS) against fire", count: counts.hasbiyallahu },
+    { id: "thirdkalima", arabic: "سُبْحَانَ اللَّهِ وَالْحَمْدُ لِلَّهِ وَلَا إِلَٰهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ", trans: "Third Kalima (Tamjeed)", meaning: "Glory to Allah, Praise to Allah, none worthy of worship but Allah, Allah is Greatest", reward: "Beloved words to Allah; heaviest on the scales", count: counts.thirdkalima },
+  ];
+
+  const currentDhikr = dhikrList.find(d => d.id === selectedDhikr);
+
+  const increment = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const newCounts = { ...counts, [selectedDhikr]: (counts[selectedDhikr] || 0) + 1 };
+    setCounts(newCounts);
+    const saved = JSON.parse(localStorage.getItem("tasbih-tracker") || "{}");
+    saved[today] = newCounts;
+    localStorage.setItem("tasbih-tracker", JSON.stringify(saved));
+  };
+
+  const reset = () => {
+    if (window.confirm("Reset count for this dhikr to 0?")) {
+      const today = new Date().toISOString().split('T')[0];
+      const newCounts = { ...counts, [selectedDhikr]: 0 };
+      setCounts(newCounts);
+      const saved = JSON.parse(localStorage.getItem("tasbih-tracker") || "{}");
+      saved[today] = newCounts;
+      localStorage.setItem("tasbih-tracker", JSON.stringify(saved));
+    }
+  };
+
+  const totalToday = Object.values(counts).reduce((sum, c) => sum + c, 0);
+
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">📿 Tasbih Counter</div>
+        <div className="page-desc">Keep your tongue moist with the remembrance of Allah</div>
+      </div>
+
+      {/* Total Banner */}
+      <div className="deeds-banner" style={{ background: "linear-gradient(135deg, var(--emerald), #2a7a50)", marginBottom: 16 }}>
+        <div>
+          <div className="deeds-banner-count">{totalToday}</div>
+          <div className="deeds-banner-label">Total dhikr today</div>
+        </div>
+        <div className="deeds-banner-verse">"Remember Me; I will remember you." (2:152)</div>
+      </div>
+
+      {/* Dhikr Selector */}
+      <div className="section-title">📜 Select Dhikr</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginBottom: 16 }}>
+        {dhikrList.map(d => (
+          <button
+            key={d.id}
+            onClick={() => setSelectedDhikr(d.id)}
+            style={{
+              padding: "10px 12px",
+              border: selectedDhikr === d.id ? "2px solid var(--gold)" : "1px solid var(--border)",
+              borderRadius: 10,
+              background: selectedDhikr === d.id ? "var(--gold-pale)" : "var(--parchment)",
+              cursor: "pointer",
+              fontFamily: "'Lora', serif",
+              fontSize: 12,
+              fontWeight: 600,
+              color: selectedDhikr === d.id ? "var(--emerald)" : "var(--ink-muted)",
+              textAlign: "center",
+              transition: "all 0.2s",
+            }}
+          >
+            <div style={{ fontFamily: "'Amiri', serif", fontSize: 15, marginBottom: 4 }}>{d.arabic}</div>
+            <div style={{ fontSize: 10 }}>{d.count} today</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Active Dhikr Counter */}
+      {currentDhikr && (
+        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, var(--emerald-muted), var(--gold-pale))", marginBottom: 16 }}>
+          <div style={{ fontFamily: "'Amiri', serif", fontSize: 28, marginBottom: 10, direction: "rtl", lineHeight: 1.8 }}>
+            {currentDhikr.arabic}
+          </div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--emerald)", marginBottom: 4 }}>
+            {currentDhikr.trans}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--ink-muted)", fontStyle: "italic", marginBottom: 6 }}>
+            "{currentDhikr.meaning}"
+          </div>
+          <div style={{ fontSize: 11, color: "var(--gold)", marginBottom: 16 }}>
+            ✦ {currentDhikr.reward}
+          </div>
+          
+          {/* Counter Display */}
+          <div style={{ fontSize: 64, fontWeight: 700, color: "var(--emerald)", fontFamily: "'Cinzel Decorative', serif", marginBottom: 16 }}>
+            {currentDhikr.count}
+          </div>
+          
+          {/* Tap Button */}
+          <button
+            onClick={increment}
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, var(--emerald), #2a7a50)",
+              border: "4px solid var(--gold)",
+              color: "white",
+              fontSize: 18,
+              fontWeight: 700,
+              cursor: "pointer",
+              boxShadow: "0 4px 16px rgba(26,92,58,0.4)",
+              transition: "all 0.15s",
+              fontFamily: "'Lora', serif",
+            }}
+            onMouseDown={e => e.target.style.transform = "scale(0.95)"}
+            onMouseUp={e => e.target.style.transform = "scale(1)"}
+          >
+            TAP
+          </button>
+          
+          <div style={{ marginTop: 16, display: "flex", gap: 10, justifyContent: "center" }}>
+            <button className="btn-sm" onClick={reset} style={{ borderColor: "var(--red-sin)", color: "var(--red-sin)" }}>
+              🔄 Reset
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="card" style={{ background: "var(--emerald-muted)", textAlign: "center" }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--emerald)", marginBottom: 8 }}>
+          📿 Hadith on Dhikr
+        </div>
+        <div style={{ fontSize: 12, color: "var(--ink)", fontStyle: "italic", lineHeight: 1.7 }}>
+          The Prophet ﷺ said: "The example of the one who remembers his Lord and the one who does not remember his Lord is like the example of the living and the dead." (Bukhari)
+        </div>
+      </div>
+
+      <div className="ornament" style={{ marginTop: 16 }}>❧ ✦ ❧</div>
+    </div>
+  );
+}
+
+
+
 
 function DailyReviewPage() {
   const [answers, setAnswers] = useState({});
@@ -1870,14 +2360,17 @@ const PAGES = [
   { id: "deeds", label: "✦ Deeds", component: DeedsPage },
   { id: "sins", label: "⚠ Sins", component: SinsPage },
   { id: "tawbah", label: "🕋 Tawbah", component: TawbahPage },
+  { id: "tasbih", label: "📿 Tasbih", component: TasbihPage },
   { id: "tracker", label: "📅 Tracker", component: DailyTrackerPage },
-  { id: "overview", label: "📊 Overview", component: OverviewPage },
+  { id: "review", label: "🌙 Review", component: DailyReviewPage },
+  { id: "report", label: "📊 Report", component: DailyReportPage },
+  { id: "overview", label: "📋 History", component: OverviewPage },
   { id: "library", label: "📖 Library", component: QuranPage },
   { id: "feelings", label: "🌸 Feelings", component: FeelingPage },
-  { id: "review", label: "🌙 Review", component: DailyReviewPage },
   { id: "journal", label: "📝 Journal", component: JournalPage },
   { id: "backup", label: "💾 Backup", component: BackupPage },
-  { id: "disclaimer", label: "📜 Disclaimer", component: DisclaimerPage },
+  { id: "settings", label: "⚙️ Settings", component: SettingsPage },
+  { id: "disclaimer", label: "ℹ About", component: DisclaimerPage },
 ];
 
 // ── Daily Tracker Page ─────────────────────────────────────────────────────────
@@ -3000,9 +3493,303 @@ function DisclaimerPage() {
   );
 }
 
+
+// ── Settings Page ────────────────────────────────────────────────────────────
+function SettingsPage() {
+  const [pin, setPin] = useState(() => localStorage.getItem("app-pin") || "");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [pinEnabled, setPinEnabled] = useState(() => localStorage.getItem("pin-enabled") === "true");
+  const [lockedPages, setLockedPages] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("locked-pages") || '["review","report","journal","tracker"]');
+    } catch {
+      return ["review","report","journal","tracker"];
+    }
+  });
+  const [message, setMessage] = useState("");
+
+  const lockablePages = [
+    { id: "review", label: "🌙 Review", desc: "Daily reflection questions" },
+    { id: "report", label: "📊 Report", desc: "Weekly charts & statistics" },
+    { id: "journal", label: "📝 Journal", desc: "Personal diary entries" },
+    { id: "tracker", label: "📅 Tracker", desc: "Daily deeds & sins tracker" },
+    { id: "overview", label: "📋 History", desc: "Past records & overview" },
+    { id: "backup", label: "💾 Backup", desc: "Data export & import" },
+  ];
+
+  const toggleLockedPage = (pageId) => {
+    let updated;
+    if (lockedPages.includes(pageId)) {
+      updated = lockedPages.filter(p => p !== pageId);
+    } else {
+      updated = [...lockedPages, pageId];
+    }
+    setLockedPages(updated);
+    localStorage.setItem("locked-pages", JSON.stringify(updated));
+  };
+
+  const savePin = () => {
+    if (newPin.length < 4) {
+      setMessage("❌ PIN must be at least 4 digits");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
+    if (newPin !== confirmPin) {
+      setMessage("❌ PINs don't match");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
+    setPin(newPin);
+    localStorage.setItem("app-pin", newPin);
+    setNewPin("");
+    setConfirmPin("");
+    setMessage("✅ PIN saved successfully!");
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  const removePin = () => {
+    if (window.confirm("⚠️ Remove PIN protection entirely?")) {
+      setPin("");
+      setPinEnabled(false);
+      localStorage.removeItem("app-pin");
+      localStorage.setItem("pin-enabled", "false");
+      setMessage("🔓 PIN removed — all pages unlocked");
+      setTimeout(() => setMessage(""), 3000);
+    }
+  };
+
+  const togglePin = () => {
+    if (!pinEnabled && !pin) {
+      setMessage("⚠️ Set a PIN first before enabling");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
+    const newState = !pinEnabled;
+    setPinEnabled(newState);
+    localStorage.setItem("pin-enabled", newState.toString());
+    setMessage(newState ? "🔒 PIN protection enabled" : "🔓 PIN protection disabled");
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">⚙️ Settings</div>
+        <div className="page-desc">Customize your privacy and app preferences</div>
+      </div>
+
+      {/* PIN Protection Toggle */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)" }}>🔒 PIN Protection</div>
+            <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>Lock sensitive pages with a PIN</div>
+          </div>
+          <button 
+            onClick={togglePin}
+            style={{
+              padding: "10px 20px",
+              borderRadius: 99,
+              border: "none",
+              background: pinEnabled ? "var(--emerald)" : "var(--border)",
+              color: pinEnabled ? "white" : "var(--ink-muted)",
+              fontWeight: 600,
+              cursor: "pointer",
+              fontFamily: "'Lora', serif",
+              fontSize: 13,
+            }}
+          >
+            {pinEnabled ? "ON ✓" : "OFF"}
+          </button>
+        </div>
+
+        {pinEnabled && (
+          <div style={{ background: "var(--emerald-muted)", padding: 12, borderRadius: 8, fontSize: 12, color: "var(--emerald)", textAlign: "center", marginBottom: 12 }}>
+            🔒 PIN is active — protected pages require PIN to access
+          </div>
+        )}
+
+        {/* Set PIN */}
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)", marginBottom: 8 }}>Set New PIN:</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <input 
+              type="password" 
+              placeholder="New PIN (min 4 digits)" 
+              value={newPin}
+              onChange={e => setNewPin(e.target.value.replace(/[^0-9]/g, ''))}
+              maxLength={6}
+              style={{ flex: 1, padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 8, fontFamily: "'Lora', serif", fontSize: 13, background: "var(--parchment)" }}
+            />
+            <input 
+              type="password" 
+              placeholder="Confirm PIN" 
+              value={confirmPin}
+              onChange={e => setConfirmPin(e.target.value.replace(/[^0-9]/g, ''))}
+              maxLength={6}
+              style={{ flex: 1, padding: "10px 14px", border: "1px solid var(--border)", borderRadius: 8, fontFamily: "'Lora', serif", fontSize: 13, background: "var(--parchment)" }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <button className="btn-primary" onClick={savePin} style={{ fontSize: 12, padding: "8px 16px" }}>💾 Save PIN</button>
+            {pin && (
+              <button className="btn-sm" onClick={removePin} style={{ borderColor: "var(--red-sin)", color: "var(--red-sin)" }}>🗑 Remove PIN</button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Lockable Pages */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "var(--emerald)", marginBottom: 12 }}>📋 Lock Specific Pages</div>
+        <div style={{ fontSize: 12, color: "var(--ink-muted)", marginBottom: 14 }}>
+          Select which pages require PIN to access when protection is ON:
+        </div>
+        {lockablePages.map(page => (
+          <div 
+            key={page.id}
+            onClick={() => toggleLockedPage(page.id)}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "10px 14px",
+              marginBottom: 6,
+              border: lockedPages.includes(page.id) ? "2px solid var(--emerald)" : "1px solid var(--border)",
+              borderRadius: 10,
+              background: lockedPages.includes(page.id) ? "var(--emerald-muted)" : "var(--parchment)",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{page.label}</div>
+              <div style={{ fontSize: 11, color: "var(--ink-light)" }}>{page.desc}</div>
+            </div>
+            <div style={{
+              width: 24, height: 24,
+              borderRadius: "50%",
+              border: lockedPages.includes(page.id) ? "2px solid var(--emerald)" : "2px solid var(--border)",
+              background: lockedPages.includes(page.id) ? "var(--emerald)" : "transparent",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12,
+              flexShrink: 0,
+            }}>
+              {lockedPages.includes(page.id) ? "✓" : ""}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {message && (
+        <div className="card" style={{ 
+          background: message.startsWith("✅") ? "var(--emerald-muted)" : message.startsWith("🔒") ? "var(--emerald-muted)" : "var(--red-pale)",
+          textAlign: "center",
+          fontWeight: 600,
+          fontSize: 14,
+        }}>
+          {message}
+        </div>
+      )}
+
+      <div className="ornament" style={{ marginTop: 16 }}>❧ ✦ ❧</div>
+    </div>
+  );
+}
+
+// ── PIN Lock Screen ──────────────────────────────────────────────────────────
+function PinLockScreen({ onUnlock }) {
+  const [enteredPin, setEnteredPin] = useState("");
+  const [error, setError] = useState("");
+  const storedPin = localStorage.getItem("app-pin");
+
+  const handleSubmit = () => {
+    if (enteredPin === storedPin) {
+      onUnlock();
+    } else {
+      setError("❌ Incorrect PIN");
+      setEnteredPin("");
+      setTimeout(() => setError(""), 2000);
+    }
+  };
+
+  return (
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "60vh",
+      padding: 20,
+    }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: "var(--emerald)", marginBottom: 8 }}>Enter PIN</div>
+      <div style={{ fontSize: 13, color: "var(--ink-muted)", marginBottom: 20 }}>This page is protected</div>
+      
+      <input 
+        type="password"
+        value={enteredPin}
+        onChange={e => setEnteredPin(e.target.value.replace(/[^0-9]/g, ''))}
+        maxLength={6}
+        placeholder="Enter your PIN"
+        autoFocus
+        onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
+        style={{
+          padding: "14px 20px",
+          fontSize: 24,
+          textAlign: "center",
+          letterSpacing: 8,
+          border: "2px solid var(--border)",
+          borderRadius: 12,
+          fontFamily: "monospace",
+          width: 180,
+          background: "var(--parchment)",
+          outline: "none",
+        }}
+      />
+      
+      {error && (
+        <div style={{ marginTop: 12, color: "var(--red-sin)", fontWeight: 600, fontSize: 14 }}>{error}</div>
+      )}
+      
+      <button 
+        className="btn-primary" 
+        onClick={handleSubmit}
+        disabled={enteredPin.length < 4}
+        style={{ marginTop: 16, padding: "12px 32px" }}
+      >
+        Unlock 🔓
+      </button>
+    </div>
+  );
+}
+
+
+
+
 export default function App() {
   const [page, setPage] = useState("deeds");
-  const Page = PAGES.find(p => p.id === page)?.component || DeedsPage;
+  const [pinVerified, setPinVerified] = useState(false);
+  
+  const pinEnabled = localStorage.getItem("pin-enabled") === "true";
+  const lockedPages = (() => {
+    try { return JSON.parse(localStorage.getItem("locked-pages") || '["review","report","journal","tracker"]'); }
+    catch { return ["review","report","journal","tracker"]; }
+  })();
+  
+  const PageComponent = PAGES.find(p => p.id === page)?.component || DeedsPage;
+  const needsPin = pinEnabled && lockedPages.includes(page);
+
+  // Reset PIN verification when switching pages
+  useEffect(() => {
+    setPinVerified(false);
+  }, [page]);
+
+  const handleUnlock = () => setPinVerified(true);
 
   return (
     <>
@@ -3025,7 +3812,11 @@ export default function App() {
         </nav>
 
         <main className="main">
-          <Page />
+          {needsPin && !pinVerified ? (
+            <PinLockScreen onUnlock={handleUnlock} />
+          ) : (
+            <PageComponent />
+          )}
         </main>
       </div>
     </>

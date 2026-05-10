@@ -1866,6 +1866,7 @@ function JournalPage() {
 
 
 // ── Daily Report Page (Bar Charts - Lighter & Smaller) ───────────────────────
+// ── Daily Report Page (Enhanced with Date/Week/Month Filters) ────────────────
 function DailyReportPage() {
   const [trackerData, setTrackerData] = useState(() => {
     try { return JSON.parse(localStorage.getItem("islamic-daily-tracker") || "{}"); } catch { return {}; }
@@ -1873,37 +1874,89 @@ function DailyReportPage() {
   const [tasbihData, setTasbihData] = useState(() => {
     try { return JSON.parse(localStorage.getItem("tasbih-tracker") || "{}"); } catch { return {}; }
   });
+  
+  const [filterMode, setFilterMode] = useState("week"); // "week", "month", "all", "custom"
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
 
-  const getLast7Days = () => {
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      days.push(d.toISOString().split('T')[0]);
-    }
-    return days;
+  // Get all available dates with data
+  const getAllDates = () => {
+    const allDates = new Set([
+      ...Object.keys(trackerData),
+      ...Object.keys(tasbihData)
+    ]);
+    return Array.from(allDates).sort();
   };
 
-  const last7Days = getLast7Days();
+  const allDates = getAllDates();
 
-  const getDeedsData = () => last7Days.map(date => {
+  // Get filtered dates based on mode
+  const getFilteredDates = () => {
+    const today = new Date();
+    
+    switch(filterMode) {
+      case "week": {
+        const days = [];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          days.push(d.toISOString().split('T')[0]);
+        }
+        return days;
+      }
+      case "month": {
+        const days = [];
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          days.push(d.toISOString().split('T')[0]);
+        }
+        return days;
+      }
+      case "all": {
+        if (allDates.length === 0) {
+          return [new Date().toISOString().split('T')[0]];
+        }
+        return allDates;
+      }
+      case "custom": {
+        if (!customStart || !customEnd) return [new Date().toISOString().split('T')[0]];
+        const days = [];
+        const start = new Date(customStart);
+        const end = new Date(customEnd);
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          days.push(d.toISOString().split('T')[0]);
+        }
+        return days;
+      }
+      default:
+        return [new Date().toISOString().split('T')[0]];
+    }
+  };
+
+  const filteredDates = getFilteredDates();
+
+  const getDeedsData = () => filteredDates.map(date => {
     const data = trackerData[date];
     return data ? Object.values(data.deeds || {}).filter(Boolean).length : 0;
   });
 
-  const getSinsData = () => last7Days.map(date => {
+  const getSinsData = () => filteredDates.map(date => {
     const data = trackerData[date];
     if (!data) return 0;
     return Object.values(data.majorSins || {}).filter(Boolean).length + Object.values(data.minorSins || {}).filter(Boolean).length;
   });
 
-  const getTasbihData = () => last7Days.map(date => {
+  const getTasbihData = () => filteredDates.map(date => {
     const data = tasbihData[date];
     return data ? Object.values(data).reduce((sum, c) => sum + (c || 0), 0) : 0;
   });
 
   const formatDay = (dateStr) => {
     const d = new Date(dateStr);
+    if (filterMode === "all" || filterMode === "month") {
+      return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+    }
     return d.toLocaleDateString("en-GB", { weekday: "short" });
   };
 
@@ -1914,31 +1967,70 @@ function DailyReportPage() {
   const maxDeeds = Math.max(...deedsData, 1);
   const maxSins = Math.max(...sinsData, 1);
   const maxTasbih = Math.max(...tasbihCounts, 1);
+  const maxValue = Math.max(maxDeeds, maxSins, maxTasbih, 1);
 
   const totalDeeds = deedsData.reduce((a, b) => a + b, 0);
   const totalSins = sinsData.reduce((a, b) => a + b, 0);
   const totalTasbih = tasbihCounts.reduce((a, b) => a + b, 0);
+  const activeDays = deedsData.filter((d, i) => d > 0 || sinsData[i] > 0 || tasbihCounts[i] > 0).length;
+
+  const barWidth = filterMode === "all" ? Math.max(4, Math.min(20, 800 / filteredDates.length)) : 
+                    filterMode === "month" ? Math.max(6, Math.min(20, 600 / filteredDates.length)) : 20;
 
   return (
     <div>
       <div className="page-header">
         <div className="page-title">📊 Spiritual Report</div>
-        <div className="page-desc">Your last 7 days of good deeds, sins, and dhikr</div>
+        <div className="page-desc">Track your good deeds, sins, and dhikr over time</div>
+      </div>
+
+      {/* Filter Controls */}
+      <div className="card" style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+          {[
+            { id: "week", label: "📅 Week" },
+            { id: "month", label: "🗓 Month" },
+            { id: "all", label: "📊 All Time" },
+            { id: "custom", label: "📆 Custom" },
+          ].map(f => (
+            <button
+              key={f.id}
+              className={`tab-pill ${filterMode === f.id ? "active" : ""}`}
+              style={{ fontSize: 12, padding: "6px 14px" }}
+              onClick={() => setFilterMode(f.id)}
+            >{f.label}</button>
+          ))}
+        </div>
+
+        {filterMode === "custom" && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>From:</span>
+            <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)}
+              style={{ padding: "6px 10px", border: "1px solid var(--border)", borderRadius: 8, fontFamily: "'Lora',serif", fontSize: 12 }} />
+            <span style={{ fontSize: 12, color: "var(--ink-muted)" }}>To:</span>
+            <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)}
+              style={{ padding: "6px 10px", border: "1px solid var(--border)", borderRadius: 8, fontFamily: "'Lora',serif", fontSize: 12 }} />
+          </div>
+        )}
       </div>
 
       {/* Summary Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 20 }}>
-        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, #AFE9D2, #d4f5e8)", color: "#1a5c3a" }}>
-          <div style={{ fontSize: 24, fontWeight: 700 }}>{totalDeeds}</div>
-          <div style={{ fontSize: 10, opacity: 0.8 }}>Deeds</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
+        <div className="card" style={{ textAlign: "center", background: "#AFBFE9", color: "#1a5c3a", padding: "12px 8px" }}>
+          <div style={{ fontSize: 20, fontWeight: 700 }}>{totalDeeds}</div>
+          <div style={{ fontSize: 10 }}>Deeds</div>
         </div>
-        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, #AFE3E9, #d4f2f5)", color: "#1a5c3a" }}>
-          <div style={{ fontSize: 24, fontWeight: 700 }}>{totalSins}</div>
-          <div style={{ fontSize: 10, opacity: 0.8 }}>Sins</div>
+        <div className="card" style={{ textAlign: "center", background: "#BCAFE9", color: "#1a5c3a", padding: "12px 8px" }}>
+          <div style={{ fontSize: 20, fontWeight: 700 }}>{totalSins}</div>
+          <div style={{ fontSize: 10 }}>Sins</div>
         </div>
-        <div className="card" style={{ textAlign: "center", background: "linear-gradient(135deg, #AFC6E9, #d4ddf5)", color: "#1a5c3a" }}>
-          <div style={{ fontSize: 24, fontWeight: 700 }}>{totalTasbih}</div>
-          <div style={{ fontSize: 10, opacity: 0.8 }}>Dhikr</div>
+        <div className="card" style={{ textAlign: "center", background: "#D9AFE9", color: "#1a5c3a", padding: "12px 8px" }}>
+          <div style={{ fontSize: 20, fontWeight: 700 }}>{totalTasbih}</div>
+          <div style={{ fontSize: 10 }}>Dhikr</div>
+        </div>
+        <div className="card" style={{ textAlign: "center", background: "#E9D9AF", color: "#1a5c3a", padding: "12px 8px" }}>
+          <div style={{ fontSize: 20, fontWeight: 700 }}>{activeDays}</div>
+          <div style={{ fontSize: 10 }}>Active Days</div>
         </div>
       </div>
 
@@ -1947,24 +2039,29 @@ function DailyReportPage() {
         <div style={{ fontSize: 13, fontWeight: 700, color: "#2a7a50", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
           ✨ Good Deeds
         </div>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
-          {last7Days.map((date, i) => (
-            <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#2a7a50", marginBottom: 4 }}>
-                {deedsData[i]}
-              </div>
-              <div style={{
-                width: 20,
-                height: `${(deedsData[i] / maxDeeds) * 100}%`,
-                minHeight: deedsData[i] > 0 ? 6 : 2,
-                background: deedsData[i] > 0 ? "linear-gradient(to top, #AFE9D2, #7bc4a0)" : "#e8e8e8",
-                borderRadius: "4px 4px 0 0",
-                transition: "height 0.4s",
-              }} />
-              <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+        {filteredDates.length > 31 ? (
+          <div style={{ overflowX: "auto", paddingBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 130, paddingTop: 10, minWidth: filteredDates.length * 14 }}>
+              {filteredDates.map((date, i) => (
+                <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", flex: 1, minWidth: barWidth }}>
+                  <div style={{ width: barWidth, height: `${(deedsData[i] / maxValue) * 100}%`, minHeight: deedsData[i] > 0 ? 4 : 1,
+                    background: deedsData[i] > 0 ? "linear-gradient(to top, #AFE9D2, #7bc4a0)" : "#e8e8e8", borderRadius: "2px 2px 0 0" }} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
+            {filteredDates.map((date, i) => (
+              <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#2a7a50", marginBottom: 4 }}>{deedsData[i]}</div>
+                <div style={{ width: 20, height: `${(deedsData[i] / maxValue) * 100}%`, minHeight: deedsData[i] > 0 ? 6 : 2,
+                  background: deedsData[i] > 0 ? "linear-gradient(to top, #AFE9D2, #7bc4a0)" : "#e8e8e8", borderRadius: "4px 4px 0 0" }} />
+                <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Sins Chart */}
@@ -1972,24 +2069,29 @@ function DailyReportPage() {
         <div style={{ fontSize: 13, fontWeight: 700, color: "#7a4040", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
           ⚠ Sins
         </div>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
-          {last7Days.map((date, i) => (
-            <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#7a4040", marginBottom: 4 }}>
-                {sinsData[i]}
-              </div>
-              <div style={{
-                width: 20,
-                height: `${(sinsData[i] / maxSins) * 100}%`,
-                minHeight: sinsData[i] > 0 ? 6 : 2,
-                background: sinsData[i] > 0 ? "linear-gradient(to top, #AFE3E9, #7ab8c4)" : "#e8e8e8",
-                borderRadius: "4px 4px 0 0",
-                transition: "height 0.4s",
-              }} />
-              <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+        {filteredDates.length > 31 ? (
+          <div style={{ overflowX: "auto", paddingBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 130, paddingTop: 10, minWidth: filteredDates.length * 14 }}>
+              {filteredDates.map((date, i) => (
+                <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", flex: 1, minWidth: barWidth }}>
+                  <div style={{ width: barWidth, height: `${(sinsData[i] / maxValue) * 100}%`, minHeight: sinsData[i] > 0 ? 4 : 1,
+                    background: sinsData[i] > 0 ? "linear-gradient(to top, #AFE3E9, #7ab8c4)" : "#e8e8e8", borderRadius: "2px 2px 0 0" }} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
+            {filteredDates.map((date, i) => (
+              <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#7a4040", marginBottom: 4 }}>{sinsData[i]}</div>
+                <div style={{ width: 20, height: `${(sinsData[i] / maxValue) * 100}%`, minHeight: sinsData[i] > 0 ? 6 : 2,
+                  background: sinsData[i] > 0 ? "linear-gradient(to top, #AFE3E9, #7ab8c4)" : "#e8e8e8", borderRadius: "4px 4px 0 0" }} />
+                <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Tasbih Chart */}
@@ -1997,27 +2099,32 @@ function DailyReportPage() {
         <div style={{ fontSize: 13, fontWeight: 700, color: "#5a5a8a", marginBottom: 16, display: "flex", alignItems: "center", gap: 6 }}>
           📿 Dhikr Count
         </div>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
-          {last7Days.map((date, i) => (
-            <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: "#5a5a8a", marginBottom: 4 }}>
-                {tasbihCounts[i]}
-              </div>
-              <div style={{
-                width: 20,
-                height: `${(tasbihCounts[i] / maxTasbih) * 100}%`,
-                minHeight: tasbihCounts[i] > 0 ? 6 : 2,
-                background: tasbihCounts[i] > 0 ? "linear-gradient(to top, #AFC6E9, #8a9ec4)" : "#e8e8e8",
-                borderRadius: "4px 4px 0 0",
-                transition: "height 0.4s",
-              }} />
-              <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+        {filteredDates.length > 31 ? (
+          <div style={{ overflowX: "auto", paddingBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 130, paddingTop: 10, minWidth: filteredDates.length * 14 }}>
+              {filteredDates.map((date, i) => (
+                <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", flex: 1, minWidth: barWidth }}>
+                  <div style={{ width: barWidth, height: `${(tasbihCounts[i] / maxValue) * 100}%`, minHeight: tasbihCounts[i] > 0 ? 4 : 1,
+                    background: tasbihCounts[i] > 0 ? "linear-gradient(to top, #AFC6E9, #8a9ec4)" : "#e8e8e8", borderRadius: "2px 2px 0 0" }} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 130, paddingTop: 10, justifyContent: "center" }}>
+            {filteredDates.map((date, i) => (
+              <div key={date} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", width: 32 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: "#5a5a8a", marginBottom: 4 }}>{tasbihCounts[i]}</div>
+                <div style={{ width: 20, height: `${(tasbihCounts[i] / maxValue) * 100}%`, minHeight: tasbihCounts[i] > 0 ? 6 : 2,
+                  background: tasbihCounts[i] > 0 ? "linear-gradient(to top, #AFC6E9, #8a9ec4)" : "#e8e8e8", borderRadius: "4px 4px 0 0" }} />
+                <div style={{ fontSize: 9, color: "var(--ink-light)", marginTop: 6 }}>{formatDay(date)}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Tasbih Detail — F4A8FF accent */}
+      {/* Today's Dhikr Breakdown */}
       <div className="card" style={{ marginBottom: 14, background: "linear-gradient(135deg, #F4A8FF20, #F4A8FF08)", border: "1px solid #F4A8FF40" }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#8a4a9a", marginBottom: 10 }}>📿 Today's Dhikr Breakdown</div>
         {(() => {
@@ -2370,7 +2477,8 @@ const PAGES = [
   { id: "journal", label: "📝 Journal", component: JournalPage },
   { id: "backup", label: "💾 Backup", component: BackupPage },
   { id: "settings", label: "⚙️ Settings", component: SettingsPage },
-  { id: "disclaimer", label: "ℹ About", component: DisclaimerPage },
+  { id: "updates", label: "🆕 Updates", component: UpdatesPage },
+  { id: "disclaimer", label: "ℹ Entreaty", component: DisclaimerPage },
 ];
 
 // ── Daily Tracker Page ─────────────────────────────────────────────────────────
@@ -3492,6 +3600,136 @@ function DisclaimerPage() {
     </div>
   );
 }
+
+// ── Updates Page ─────────────────────────────────────────────────────────────
+function UpdatesPage() {
+  const updates = [
+    { 
+      date: "11 May 2025", 
+      title: "📊 Enhanced Reports", 
+      desc: "Added Week/Month/All Time/Custom date filters. Bar charts now show full history, not just 7 days. Added today's dhikr breakdown.",
+      type: "feature"
+    },
+    { 
+      date: "10 May 2025", 
+      title: "📿 Tasbih Counter", 
+      desc: "New dhikr counter with 10 adhkar including SubhanAllah, Alhamdulillah, Allahu Akbar, Salawat, and more. Daily tracking with tap-to-count.",
+      type: "feature"
+    },
+    { 
+      date: "09 May 2025", 
+      title: "🔒 PIN Protection", 
+      desc: "Settings page added. Set a 4-digit PIN to lock private pages like Journal, Tracker, and Review.",
+      type: "feature"
+    },
+    { 
+      date: "08 May 2025", 
+      title: "📝 Journal Upgrade", 
+      desc: "Edit and delete journal entries. Collapsible view shows date previews. Delete confirmation added.",
+      type: "feature"
+    },
+    { 
+      date: "07 May 2025", 
+      title: "🕋 Tawbah Enhancement", 
+      desc: "Added Qur'anic verses, authentic hadiths, Sayyidul Istighfar, Salat al-Tawbah guide, and specific sin-by-sin guidance.",
+      type: "feature"
+    },
+    { 
+      date: "06 May 2025", 
+      title: "🎨 UI Refresh", 
+      desc: "Lighter pastel colors throughout the app. Improved text readability. Mobile-friendly navigation with wrapped tabs.",
+      type: "improvement"
+    },
+    { 
+      date: "05 May 2025", 
+      title: "💾 Backup System", 
+      desc: "Download and restore all data as JSON files. Weekly backup reminder added to protect your records.",
+      type: "feature"
+    },
+    { 
+      date: "04 May 2025", 
+      title: "📱 PWA Support", 
+      desc: "App can now be installed on phone home screen with custom icon and splash screen.",
+      type: "feature"
+    },
+    { 
+      date: "03 May 2025", 
+      title: "📋 Major Sins Expanded", 
+      desc: "Added Backbiting, Lying, Watching Improper Videos, and Misbehaving with Parents as major sins with detailed guides.",
+      type: "improvement"
+    },
+    { 
+      date: "01 May 2025", 
+      title: "🚀 Initial Release", 
+      desc: "Deeds Tracker, Sins Tracker, Quran Library, Hadith Books, Tafsir, Feelings Companion, Daily Review, and Personal Journal.",
+      type: "major"
+    },
+  ];
+
+  const typeColors = {
+    feature: "#AFBFE9",
+    improvement: "#BFE9AF",
+    major: "#E9D9AF",
+    fix: "#EDABB5",
+  };
+
+  const typeLabels = {
+    feature: "New Feature",
+    improvement: "Improvement",
+    major: "Major Release",
+    fix: "Bug Fix",
+  };
+
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">🆕 Update Info</div>
+        <div className="page-desc">Track what's new and improved in your spiritual companion</div>
+      </div>
+
+      <div className="card" style={{ background: "linear-gradient(135deg, #AFBFE9, #D9AFE9)", color: "#1a3a2a", textAlign: "center", marginBottom: 20 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>📅 Stay Updated</div>
+        <div style={{ fontSize: 13, opacity: 0.85 }}>
+          Every major update is documented here. Check back whenever the app updates!
+        </div>
+      </div>
+
+      {/* Timeline */}
+      {updates.map((u, i) => (
+        <div key={i} className="card" style={{ 
+          marginBottom: 12,
+          borderLeft: `4px solid ${typeColors[u.type]}`,
+          background: i === 0 ? "var(--gold-pale)" : "var(--parchment)"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8, marginBottom: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {i === 0 && <span style={{ 
+                background: "var(--emerald)", color: "white", fontSize: 9, fontWeight: 700, 
+                padding: "2px 8px", borderRadius: 99, letterSpacing: 1 
+              }}>LATEST</span>}
+              <div style={{ fontSize: 11, color: "var(--gold)", fontWeight: 700, letterSpacing: 1 }}>{u.date}</div>
+            </div>
+            <span style={{ 
+              background: typeColors[u.type], color: "#1a3a2a", fontSize: 10, fontWeight: 600,
+              padding: "3px 10px", borderRadius: 99
+            }}>{typeLabels[u.type]}</span>
+          </div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--emerald)", marginBottom: 6 }}>{u.title}</div>
+          <div style={{ fontSize: 13, color: "var(--ink-muted)", lineHeight: 1.7 }}>{u.desc}</div>
+        </div>
+      ))}
+
+      <div className="card" style={{ background: "var(--emerald-muted)", textAlign: "center" }}>
+        <div style={{ fontSize: 14, color: "var(--emerald)", fontStyle: "italic" }}>
+          More updates coming soon, in sha Allah! 🤲
+        </div>
+      </div>
+
+      <div className="ornament" style={{ marginTop: 16 }}>❧ ✦ ❧</div>
+    </div>
+  );
+}
+
 
 
 // ── Settings Page ────────────────────────────────────────────────────────────

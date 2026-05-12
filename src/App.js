@@ -1506,11 +1506,10 @@ function QuranPage() {
   );
 }
 
+// ── Feelings Page (Enhanced with Quran & Hadith) ─────────────────────────────
 function FeelingPage() {
   const [feeling, setFeeling] = useState(null);
   const [wordIdx, setWordIdx] = useState(0);
-  const [aiMsg, setAiMsg] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
 
   const feelings = [
     { key: "happy", label: "Happy", emoji: "🌟" },
@@ -1522,40 +1521,150 @@ function FeelingPage() {
     { key: "empty", label: "Empty", emoji: "🌫" },
     { key: "distressed", label: "Distressed", emoji: "🌪" },
     { key: "urge", label: "Urge to Sin", emoji: "⚡" },
+    { key: "lonely", label: "Lonely", emoji: "🥺" },
+    { key: "angry", label: "Angry", emoji: "😤" },
+    { key: "hopeful", label: "Hopeful", emoji: "🌈" },
   ];
 
-  const selectFeeling = async (f) => {
-    setFeeling(f);
-    setWordIdx(0);
-    setAiMsg(""); setAiLoading(true);
-    const urgentNote = f.key === "urge"
-      ? "This is an URGENT spiritual crisis moment. Be immediate, practical, and powerful. Give them specific actions to take RIGHT NOW (make wudu, change location, say this dua). Be a compassionate but urgent spiritual first responder."
-      : "Write a deeply personal, comforting message from an Islamic perspective. Include a relevant Quranic reference or Hadith naturally woven into your message. Be warm, not preachy. About 3-4 sentences.";
-    const result = await callClaude(
-      `You are a gentle, warm Islamic spiritual companion. The user is feeling "${f.label}".
-      ${urgentNote}
-      In English only. No bullet points.`
-    );
-    setAiMsg(result);
-    setAiLoading(false);
+  const feelingData = {
+    happy: {
+      words: [
+        "الحمد لله — All praise is for Allah! Your joy is a blessing from Him. Share it, for happiness shared is multiplied. 'If you are grateful, I will surely increase you.' (Quran 14:7)",
+        "MashAllah, your heart is light today. Use this beautiful energy in the remembrance of Allah — dhikr in joy is precious. The Prophet ﷺ said: 'How wonderful is the affair of the believer! All his affairs are good.' (Muslim)",
+        "Your happiness is a gift from Ar-Rahman. Celebrate it with gratitude, and let it fuel your worship. 'Say: In the bounty of Allah and in His mercy — in that let them rejoice.' (Yunus 10:58)"
+      ],
+      ayah: { arabic: "وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ", trans: "\"And as for the favor of your Lord, proclaim it.\" (Ad-Duha 93:11)" },
+      hadith: "The Prophet ﷺ said: 'Whoever is pleased with Allah as his Lord, Islam as his religion, and Muhammad as his Prophet, has tasted the sweetness of faith.' (Muslim)",
+      action: "Share your joy — call a loved one, give charity, or make sajdah of gratitude (sajdat al-shukr)."
+    },
+    sad: {
+      words: [
+        "Indeed, with every hardship comes ease — twice. (Quran 94:5-6) This moment will pass, and what remains will be strength. Allah sees your tears. Every tear a believer sheds in sincerity, Allah does not let it go to waste.",
+        "The Prophet ﷺ lost his beloved wife Khadijah (RA) and his uncle Abu Talib in the same year — the Year of Sorrow. He wept. Your sadness makes you human. Turn it into dua — cry to the One who hears every whisper.",
+        "Ya Allah, You are Al-Jabbar — the Mender of broken hearts. Mend this heart. The Prophet ﷺ said: 'No fatigue, disease, sorrow, sadness, hurt, or distress befalls a Muslim — even the prick of a thorn — except that Allah expiates some of his sins.' (Bukhari)"
+      ],
+      ayah: { arabic: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا", trans: "\"For indeed, with hardship comes ease. Indeed, with hardship comes ease.\" (Ash-Sharh 94:5-6)" },
+      hadith: "The Prophet ﷺ said: 'When Allah loves a servant, He tests him.' (Tirmidhi)",
+      action: "Pray 2 rak'ahs and pour your heart out in sajdah. Write down 3 things you're still grateful for."
+    },
+    anxious: {
+      words: [
+        "Verily, in the remembrance of Allah do hearts find rest. (Quran 13:28) Breathe deeply. Say: حسبي الله ونعم الوكيل — Allah is sufficient for me, and He is the best Disposer of affairs.",
+        "Cast your worries upon Al-Qayyum — the One who holds the heavens and earth without fatigue. What burdens you is light to Him. 'And whoever relies upon Allah — then He is sufficient for him.' (At-Talaq 65:3)",
+        "The Prophet ﷺ taught this dua for anxiety: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ — O Allah, I seek refuge in You from anxiety and grief.' Say it now, with conviction."
+      ],
+      ayah: { arabic: "الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", trans: "\"Those who believe and whose hearts find peace in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find peace.\" (Ar-Ra'd 13:28)" },
+      hadith: "Ibn Abbas (RA) reported: The Prophet ﷺ used to say at times of distress: 'La ilaha illallah al-Adheem al-Haleem, la ilaha illallah Rabbul Arshil Adheem.' (Bukhari)",
+      action: "Make wudu. Feel the water washing away your worries. Pray 2 rak'ahs slowly. Then make this dua 7 times."
+    },
+    grateful: {
+      words: [
+        "SubhanAllah — your gratitude itself is an act of worship! Allah loves the thankful heart. 'If you are grateful, I will surely increase you.' (Ibrahim 14:7). Write down three blessings — small or large.",
+        "The Prophet ﷺ said: 'Whoever does not thank people has not thanked Allah.' (Abu Dawud) Share your gratitude with those around you today. Call someone and tell them you appreciate them.",
+        "Gratitude is the door to more blessings. The Prophet ﷺ would stand in prayer until his feet swelled, and when asked why, he said: 'Should I not be a grateful servant?' (Bukhari)"
+      ],
+      ayah: { arabic: "لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ", trans: "\"If you are grateful, I will surely increase you.\" (Ibrahim 14:7)" },
+      hadith: "The Prophet ﷺ said: 'Look at those who are below you, not those above you, for that is more likely to make you appreciate Allah's blessings.' (Muslim)",
+      action: "Make a gratitude list NOW. Write 5 things. Then say Alhamdulillah 100 times."
+    },
+    guilty: {
+      words: [
+        "Do not despair of Allah's mercy — indeed, He forgives all sins. (Az-Zumar 39:53). Your guilt is a sign of iman — a dead heart feels nothing. Say: أستغفر الله — I seek Allah's forgiveness. Now.",
+        "The Prophet ﷺ said: 'The best of sinners are those who constantly repent.' (Tirmidhi) You have already taken the first step by feeling remorse. Now take the second: sincere tawbah.",
+        "Allah says in Hadith Qudsi: 'O son of Adam, if your sins were to reach the clouds of the sky, then you sought My forgiveness, I would forgive you and not care.' (Tirmidhi)"
+      ],
+      ayah: { arabic: "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا", trans: "\"Say: O My servants who have transgressed against themselves, do not despair of Allah's mercy. Indeed, Allah forgives all sins.\" (Az-Zumar 39:53)" },
+      hadith: "The Prophet ﷺ said: 'The one who repents from sin is like the one who never sinned.' (Ibn Majah)",
+      action: "Go to the 🕋 Tawbah tab and follow the 4 steps of sincere repentance."
+    },
+    peaceful: {
+      words: [
+        "What a blessed state — the heart at peace. This is the reward of remembrance. Guard it with your salah and dhikr. 'Those who believe and whose hearts find peace in the remembrance of Allah.' (13:28)",
+        "السلام — Peace is one of Allah's names, and you are tasting it today. This is a sign of His closeness to you. The Prophet ﷺ said: 'Whoever wakes up healthy in body, safe in his home, with food for the day — it is as if he possesses the whole world.'",
+        "A peaceful heart is a strong heart. Use this stillness to connect deeper — read a page of Quran, make a long sajdah, or simply sit in silence with Allah."
+      ],
+      ayah: { arabic: "يَا أَيَّتُهَا النَّفْسُ الْمُطْمَئِنَّةُ ۝ ارْجِعِي إِلَىٰ رَبِّكِ رَاضِيَةً مَّرْضِيَّةً", trans: "\"O peaceful soul, return to your Lord, well-pleased and well-pleasing.\" (Al-Fajr 89:27-28)" },
+      hadith: "The Prophet ﷺ said: 'The example of the one who remembers his Lord and the one who does not is like the living and the dead.' (Bukhari)",
+      action: "Extend your sajdah. Stay there. Just breathe and feel Allah's peace surround you."
+    },
+    empty: {
+      words: [
+        "Even the Prophet ﷺ had moments of silence from revelation — and it was not abandonment. This emptiness is not a sign that Allah has left you. He is present, even in the quiet. 'He found you lost and guided you.' (93:7)",
+        "When the heart feels hollow, it is often a thirst for Allah that nothing else can fill. Make wudu, sit in stillness, and simply say: يا الله — Ya Allah. Let that be enough for now.",
+        "This emptiness is not your final state. It is the valley before the mountain. Keep walking. The Prophet ﷺ said: 'Be in this world as if you were a stranger or a traveler.' (Bukhari)"
+      ],
+      ayah: { arabic: "أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ ۝ وَوَضَعْنَا عَنكَ وِزْرَكَ", trans: "\"Have We not opened your chest for you? And We removed from you your burden.\" (Ash-Sharh 94:1-2)" },
+      hadith: "The Prophet ﷺ said: 'Allah says: I am as My servant thinks of Me... If he comes to Me walking, I go to him running.' (Bukhari)",
+      action: "Go outside. Look at the sky. Breathe. Say SubhanAllah 33x, Alhamdulillah 33x, Allahu Akbar 34x."
+    },
+    distressed: {
+      words: [
+        "Allah said: 'Do not grieve — indeed Allah is with us.' (9:40). Your distress is seen, known, and held by the Most Merciful. You are not carrying this alone. The Prophet ﷺ wept, he struggled, he sought Allah intensely.",
+        "Say this dua NOW: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ' — O Allah, I seek refuge in You from anxiety and grief. This was the Prophet's ﷺ own dua for moments like yours.",
+        "The dua of Yunus (AS) in the belly of the whale: 'لَّا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ' — No god but You, glory be to You, I was among the wrongdoers. Allah answered him. He will answer you."
+      ],
+      ayah: { arabic: "فَاسْتَجَبْنَا لَهُ وَنَجَّيْنَاهُ مِنَ الْغَمِّ ۚ وَكَذَٰلِكَ نُنجِي الْمُؤْمِنِينَ", trans: "\"So We answered him and saved him from the distress. And thus do We save the believers.\" (Al-Anbiya 21:88)" },
+      hadith: "The Prophet ﷺ said: 'No Muslim is afflicted with distress, anxiety, sadness, or even a thorn prick, except that Allah expiates his sins.' (Bukhari)",
+      action: "Make wudu. Pray 2 rak'ahs. Cry to Allah in sajdah. He is listening."
+    },
+    urge: {
+      words: [
+        "STOP. Breathe. Say: أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ — I seek refuge in Allah from Shaitan. The Prophet ﷺ said this is the shield. Use it NOW. Make wudu immediately. Change where you are physically.",
+        "This urge is the test. And you are reading this instead of giving in — that itself is a victory. Allah sees your struggle and loves you for it. 'Allah does not burden a soul beyond what it can bear.' (2:286)",
+        "Every moment you resist, you are earning what words cannot describe. The Prophet ﷺ said: 'Whoever fears Allah, He will make for him a way out and provide from where he does not expect.' (65:2-3)"
+      ],
+      ayah: { arabic: "وَأَمَّا مَنْ خَافَ مَقَامَ رَبِّهِ وَنَهَى النَّفْسَ عَنِ الْهَوَىٰ ۝ فَإِنَّ الْجَنَّةَ هِيَ الْمَأْوَىٰ", trans: "\"And as for him who feared standing before his Lord and restrained his soul from desire — indeed, Paradise will be his refuge.\" (An-Nazi'at 79:40-41)" },
+      hadith: "The Prophet ﷺ said: 'Paradise is surrounded by hardships, and Hellfire is surrounded by desires.' (Muslim)",
+      action: "1. Say A'udhu billah NOW. 2. Leave the room. 3. Make wudu. 4. Pray 2 rak'ahs. 5. Call a trusted friend."
+    },
+    lonely: {
+      words: [
+        "Allah is nearer to you than your jugular vein. (Qaf 50:16). You are never truly alone — Al-Wali (The Protective Friend) is with you. The Prophet ﷺ felt loneliness too, especially after losing Khadijah (RA).",
+        "The Prophet ﷺ said: 'A believer is like a mirror to another believer.' (Abu Dawud) Reach out to someone today — even a simple salam. Community is medicine for the lonely heart.",
+        "Allah says: 'I am with My servant when he remembers Me... If he remembers Me in himself, I remember him in Myself.' (Hadith Qudsi)"
+      ],
+      ayah: { arabic: "وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ الْوَرِيدِ", trans: "\"And We are closer to him than his jugular vein.\" (Qaf 50:16)" },
+      hadith: "The Prophet ﷺ said: 'A man follows the religion of his friend, so let each one of you look at whom he befriends.' (Abu Dawud)",
+      action: "Text or call a friend or family member right now. Just say salam. Also visit the mosque — you'll find your true family there."
+    },
+    angry: {
+      words: [
+        "The Prophet ﷺ said: 'The strong man is not the one who wrestles others. The strong man is the one who controls himself when he is angry.' (Bukhari). Say A'udhu billah min ash-shaytan ir-rajeem.",
+        "If you are standing, sit down. If sitting, lie down. Make wudu — anger is from Shaitan, and water extinguishes it. The Prophet ﷺ taught us: 'When one of you becomes angry, let him remain silent.'",
+        "Allah loves those who swallow their anger and forgive: 'Those who spend in ease and hardship, and who restrain anger, and who pardon people — Allah loves the doers of good.' (3:134)"
+      ],
+      ayah: { arabic: "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ ۗ وَاللَّهُ يُحِبُّ الْمُحْسِنِينَ", trans: "\"And those who restrain anger and pardon people — and Allah loves the doers of good.\" (Al-Imran 3:134)" },
+      hadith: "A man came to the Prophet ﷺ and said: 'Advise me.' He said: 'Do not become angry.' The man repeated his request several times, and each time the Prophet ﷺ said: 'Do not become angry.' (Bukhari)",
+      action: "1. Say A'udhu billah. 2. Sit down or lie down. 3. Make wudu. 4. Stay silent for 5 minutes. 5. Then decide if it's worth responding."
+    },
+    hopeful: {
+      words: [
+        "Hope in Allah's mercy is an act of worship. The Prophet ﷺ said: 'None of you should die except while having good thoughts about Allah.' (Muslim). Your hope is not in vain.",
+        "'Indeed, with hardship comes ease.' (94:6). Allah promises this TWICE in the same surah. The dawn is always near. Your patience today is building your palace in Jannah.",
+        "A man who killed 99 people was forgiven because he took one step towards Allah. Your hope in His mercy can move mountains. Keep walking towards Him."
+      ],
+      ayah: { arabic: "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ", trans: "\"Say: O My servants who have transgressed against themselves, do not despair of Allah's mercy.\" (Az-Zumar 39:53)" },
+      hadith: "The Prophet ﷺ said: 'Allah says: I am as My servant thinks of Me. So let him think of Me as he wishes.' (Ahmad)",
+      action: "Make a dua list of everything you're hoping for. Pray 2 rak'ahs. Ask Allah with complete confidence He will answer."
+    }
   };
 
-  const words = feeling ? KIND_WORDS[feeling.key] || [] : [];
+  const words = feeling ? (feelingData[feeling.key]?.words || []) : [];
 
   return (
     <div>
       <div className="page-header">
         <div className="page-title">🌸 Kind Words</div>
-        <div className="page-desc">How are you feeling today? Let Islam speak to your heart.</div>
+        <div className="page-desc">How are you feeling? Let Quran, Hadith, and wisdom speak to your heart.</div>
       </div>
 
-      <div className="feeling-grid" style={{gridTemplateColumns:"repeat(3,1fr)"}}>
+      <div className="feeling-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
         {feelings.map(f => (
           <button
             key={f.key}
             className={`feeling-btn ${feeling?.key === f.key ? "active" : ""}`}
-            style={f.key === "urge" ? {borderColor: feeling?.key === "urge" ? "var(--red-sin)" : "rgba(139,42,42,0.3)", background: feeling?.key === "urge" ? "#fff0f0" : "var(--parchment)", color: "var(--red-sin)"} : {}}
-            onClick={() => selectFeeling(f)}
+            style={f.key === "urge" ? { borderColor: feeling?.key === "urge" ? "var(--red-sin)" : "rgba(139,42,42,0.3)" } : {}}
+            onClick={() => { setFeeling(f); setWordIdx(0); }}
           >
             <span className="feeling-emoji">{f.emoji}</span>
             {f.label}
@@ -1564,10 +1673,10 @@ function FeelingPage() {
       </div>
 
       {feeling && feeling.key === "urge" && (
-        <div style={{background:"linear-gradient(135deg,#5c1a1a,#8b2a2a)",borderRadius:"var(--radius)",padding:"16px 18px",marginBottom:14,color:"white",animation:"fadeIn 0.3s ease"}}>
-          <div style={{fontWeight:700,fontSize:14,marginBottom:6}}>⚡ Stop. Do these NOW:</div>
-          <div style={{fontSize:13,lineHeight:1.8,opacity:.92}}>
-            1. Say: <span style={{fontFamily:"'Amiri',serif",fontSize:16}}>أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ</span><br/>
+        <div style={{ background: "linear-gradient(135deg,#8b5a5a,#b88080)", borderRadius: "var(--radius)", padding: "16px 18px", marginBottom: 14, color: "white" }}>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>⚡ Stop. Do these NOW:</div>
+          <div style={{ fontSize: 13, lineHeight: 1.8 }}>
+            1. Say: أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ<br/>
             2. Make wudu immediately<br/>
             3. Change where you are — physically move<br/>
             4. Call or text a trusted person<br/>
@@ -1583,42 +1692,47 @@ function FeelingPage() {
             <div className="kind-words-text">{words[wordIdx]}</div>
             <div className="kind-words-nav">
               <button className="kind-words-nav-btn" onClick={() => setWordIdx(i => (i - 1 + words.length) % words.length)}>‹</button>
+              <span style={{ fontSize: 11, color: "var(--ink-light)", fontFamily: "monospace" }}>{wordIdx + 1}/{words.length}</span>
               <button className="kind-words-nav-btn" onClick={() => setWordIdx(i => (i + 1) % words.length)}>›</button>
             </div>
           </div>
 
-          <div style={{marginTop:14}}>
-            {aiLoading && (
-              <div className="card">
-                <div className="ai-loading">
-                  <div className="dots"><span/><span/><span/></div>
-                  Writing a personal message for you...
-                </div>
-              </div>
-            )}
-            {aiMsg && (
-              <div className="kind-words-box">
-                <div className="kind-words-label">✦ A Personal Word from Your Companion</div>
-                <div className="kind-words-text">{aiMsg}</div>
-              </div>
-            )}
+          {/* Quran Verse */}
+          <div className="card" style={{ background: "var(--emerald-muted)", marginTop: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--gold)", letterSpacing: 1, marginBottom: 8 }}>📖 QURANIC VERSE</div>
+            <div className="arabic-text" style={{ fontSize: 18, background: "transparent", border: "none", padding: 8 }}>
+              {feelingData[feeling.key]?.ayah.arabic}
+            </div>
+            <div style={{ fontSize: 13, fontStyle: "italic", color: "var(--emerald)", textAlign: "center" }}>
+              {feelingData[feeling.key]?.ayah.trans}
+            </div>
+          </div>
+
+          {/* Hadith */}
+          <div className="card" style={{ background: "var(--gold-pale)", marginTop: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--gold)", letterSpacing: 1, marginBottom: 8 }}>💎 PROPHETIC HADITH</div>
+            <div style={{ fontSize: 13, fontStyle: "italic", color: "var(--ink)", lineHeight: 1.7 }}>
+              "{feelingData[feeling.key]?.hadith}"
+            </div>
+          </div>
+
+          {/* Action */}
+          <div className="card" style={{ background: "#AFBFE920", border: "1px solid #AFBFE9", marginTop: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#ABB5ED", letterSpacing: 1, marginBottom: 8 }}>🤲 WHAT YOU CAN DO NOW</div>
+            <div style={{ fontSize: 13, color: "var(--ink)", lineHeight: 1.7 }}>
+              {feelingData[feeling.key]?.action}
+            </div>
           </div>
         </>
       )}
 
       {!feeling && (
         <div className="empty-state">
-          Select how you feel above to receive<br/>words of comfort and guidance.
+          Select how you feel above to receive<br/>words of comfort from Quran and Sunnah.
         </div>
       )}
 
-      <div className="ornament" style={{marginTop:24}}>❧ ✦ ❧</div>
-      <div className="card" style={{background:"var(--emerald-muted)",border:"1px solid rgba(26,92,58,0.2)"}}>
-        <div className="arabic-text" style={{fontSize:16}}>"وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ"</div>
-        <div style={{fontSize:13,color:"var(--emerald)",fontStyle:"italic",textAlign:"center"}}>
-          "And He is with you wherever you are." (57:4)
-        </div>
-      </div>
+      <div className="ornament" style={{ marginTop: 24 }}>❧ ✦ ❧</div>
     </div>
   );
 }
@@ -2469,6 +2583,7 @@ const PAGES = [
   { id: "tawbah", label: "🕋 Tawbah", component: TawbahPage },
   { id: "tasbih", label: "📿 Tasbih", component: TasbihPage },
   { id: "tracker", label: "📅 Tracker", component: DailyTrackerPage },
+  { id: "guideline", label: "📖 User Guideline", component: GuidelinePage },
   { id: "review", label: "🌙 Review", component: DailyReviewPage },
   { id: "report", label: "📊 Report", component: DailyReportPage },
   { id: "overview", label: "📋 History", component: OverviewPage },
@@ -2478,7 +2593,7 @@ const PAGES = [
   { id: "backup", label: "💾 Backup", component: BackupPage },
   { id: "settings", label: "⚙️ Settings", component: SettingsPage },
   { id: "updates", label: "🆕 Updates", component: UpdatesPage },
-  { id: "disclaimer", label: "ℹ Entreaty", component: DisclaimerPage },
+  { id: "disclaimer", label: "ℹ Disclaimer", component: DisclaimerPage },
 ];
 
 // ── Daily Tracker Page ─────────────────────────────────────────────────────────
@@ -3600,6 +3715,78 @@ function DisclaimerPage() {
     </div>
   );
 }
+
+// ── User Guideline Page ──────────────────────────────────────────────────────
+function GuidelinePage() {
+  return (
+    <div>
+      <div className="page-header">
+        <div className="page-title">📖 User Guideline</div>
+        <div className="page-desc">How to get the most from your Islamic Companion</div>
+      </div>
+
+      {/* Quick Start */}
+      <div className="card" style={{ background: "linear-gradient(135deg, #AFBFE9, #D9AFE9)", color: "#1a3a2a", marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>🚀 Quick Start</div>
+        <ol style={{ marginLeft: 20, fontSize: 14, lineHeight: 2 }}>
+          <li><strong>✦ Deeds</strong> — Check off your daily good deeds and save them</li>
+          <li><strong>⚠ Sins</strong> — Acknowledge sins you struggled with today</li>
+          <li><strong>📅 Tracker</strong> — Track both deeds and sins by date</li>
+          <li><strong>💾 Backup</strong> — Download your data weekly to keep it safe!</li>
+        </ol>
+      </div>
+
+      {/* How Each Tab Works */}
+      <div className="section-title">📋 Tab-by-Tab Guide</div>
+      
+      {[
+        { emoji: "✦", title: "Deeds Tracker", desc: "Check off good deeds you've done today. Click 'Save Today's Record' to store them. Resets daily — start fresh each day!", tip: "Try to check at least 5 deeds daily." },
+        { emoji: "⚠", title: "Sins & Tawbah", desc: "Acknowledge major and minor sins you've fallen into. Use the 'Seek Tawbah' button for AI-guided repentance guidance.", tip: "Be honest with yourself — awareness is the first step to change." },
+        { emoji: "🕋", title: "Tawbah Guide", desc: "Comprehensive repentance guide with Quranic verses, hadiths, duas, and the 4 conditions of sincere tawbah. Select a specific sin for targeted guidance.", tip: "Say Sayyidul Istighfar morning and evening." },
+        { emoji: "📿", title: "Tasbih Counter", desc: "Tap-to-count dhikr. Choose from 10 adhkar. Your daily counts are saved automatically and shown in the Report.", tip: "Aim for 100 Astaghfirullah daily — the Prophet ﷺ did this." },
+        { emoji: "📅", title: "Daily Tracker", desc: "View and edit any day's deeds and sins. Select different dates to fill in missed days. All data is saved to your device.", tip: "Save your tracker every night before sleeping." },
+        { emoji: "📊", title: "Spiritual Report", desc: "Bar charts showing your deeds, sins, and dhikr. Filter by Week, Month, All Time, or Custom dates. See your progress visually!", tip: "Check weekly to stay motivated." },
+        { emoji: "🌙", title: "Daily Review", desc: "End your day with reflection questions. Get an AI-generated spiritual reflection based on your answers.", tip: "Make this a nightly habit — it takes just 2 minutes." },
+        { emoji: "📖", title: "Islamic Library", desc: "Full Quran browser, authentic Hadith from 5 major collections, scholarly Tafsir, and AI Scholar for any Islamic question.", tip: "Start with the Daily Ayah each morning." },
+        { emoji: "🌸", title: "Feelings Companion", desc: "Select how you're feeling and receive Islamic comfort — Quran verses, hadith, and personalized words for your emotion.", tip: "Use this whenever you feel overwhelmed or grateful." },
+        { emoji: "📝", title: "Personal Journal", desc: "Private diary for your spiritual reflections. Edit, delete, or expand entries. Your space to be honest with yourself and Allah.", tip: "Write freely — there are no limits here." },
+        { emoji: "💾", title: "Backup & Restore", desc: "Download all your data as a JSON file. Restore it anytime. CRITICAL: Your data is stored only on this device!", tip: "Backup every Friday after Jumu'ah." },
+        { emoji: "⚙️", title: "Settings", desc: "Set a PIN to lock private pages (Journal, Tracker, Review, etc.). Choose which pages to protect.", tip: "Use a PIN you'll remember." },
+      ].map((item, i) => (
+        <div key={i} className="card" style={{ marginBottom: 10 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "var(--emerald)", marginBottom: 4 }}>
+            {item.emoji} {item.title}
+          </div>
+          <div style={{ fontSize: 13, color: "var(--ink-muted)", lineHeight: 1.7, marginBottom: 6 }}>
+            {item.desc}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--gold)", fontStyle: "italic", background: "var(--gold-pale)", padding: "6px 10px", borderRadius: 6 }}>
+            💡 Tip: {item.tip}
+          </div>
+        </div>
+      ))}
+
+      {/* Important Notes */}
+      <div className="card" style={{ background: "linear-gradient(135deg, #5c1a1a, #8b2a2a)", color: "white", marginBottom: 16 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>⚠️ Important Reminders</div>
+        <ul style={{ marginLeft: 20, fontSize: 13, lineHeight: 2 }}>
+          <li>All data is stored <strong>locally on your device only</strong></li>
+          <li>Clearing browser history/cache will <strong>permanently delete</strong> everything</li>
+          <li><strong>Backup weekly</strong> — use the 💾 Backup tab!</li>
+          <li>This app is for personal spiritual development — not a substitute for qualified scholars</li>
+          <li>AI features provide general guidance — for specific fiqh rulings, consult a local imam</li>
+        </ul>
+      </div>
+
+      <div className="ornament" style={{ marginTop: 16 }}>❧ ✦ ❧</div>
+      <div style={{ textAlign: "center", fontSize: 13, color: "var(--ink-light)", fontStyle: "italic" }}>
+        May Allah accept your efforts and make this a means of drawing closer to Him. 🤲
+      </div>
+    </div>
+  );
+}
+
+
 
 // ── Updates Page ─────────────────────────────────────────────────────────────
 function UpdatesPage() {
